@@ -1547,6 +1547,174 @@ const DATA = [
   easy: "택배 송장 읽기/쓰기예요. URL 뒤에 붙은 <code>?page=2&sort=latest</code> 같은 정보를 쉽게 읽고 수정할 수 있습니다. 직접 문자열을 자르고 붙이지 않아도 돼요.",
   code: `// URL에서 파라미터 읽기\nconst params = new URLSearchParams(window.location.search);\nparams.get('page');     // '2'\nparams.has('sort');     // true\n\n// 파라미터 조작\nparams.set('page', '3');\nparams.append('filter', 'active');\nparams.delete('sort');\n\n// URL 업데이트\nconst newUrl = \`\${location.pathname}?\${params}\`;\nhistory.pushState(null, '', newUrl);`
 },
+
+// ──────────────────────────────────────────
+// AI / LLM
+// ──────────────────────────────────────────
+{
+  cat: "ai", title: "LLM (Large Language Model)",
+  tags: ["기초"],
+  basic: "대규모 텍스트 데이터로 학습한 언어 모델입니다. GPT, Claude, Gemini 등이 대표적. 다음 토큰(단어 조각)을 예측하는 방식으로 텍스트를 생성합니다. 파라미터 수가 클수록 더 복잡한 패턴을 학습할 수 있어요.",
+  easy: "독서왕이에요. 인터넷의 거의 모든 글을 읽은 사람이 있다고 상상해보세요. 질문하면 읽었던 내용을 바탕으로 가장 그럴듯한 답을 만들어냅니다. 외우는 게 아니라 패턴을 학습한 거예요.",
+},
+{
+  cat: "ai", title: "토큰 (Token)",
+  tags: ["기초"],
+  basic: "LLM이 텍스트를 처리하는 최소 단위입니다. 단어, 단어 조각, 또는 문자가 될 수 있어요. '안녕하세요'는 여러 토큰으로 쪼개집니다. API 비용은 입력+출력 토큰 수로 계산됩니다.",
+  easy: "레고 블록이에요. 문장을 레고처럼 작은 조각으로 쪼개서 처리합니다. '프로그래밍'이 '프로', '그래', '밍' 같은 조각이 되는 거예요. 블록이 많을수록 비용이 올라갑니다.",
+},
+{
+  cat: "ai", title: "프롬프트 엔지니어링",
+  tags: ["실무"],
+  basic: "AI에게 원하는 결과를 얻기 위해 입력(프롬프트)을 설계하는 기술입니다. 역할 지정, 예시 제공(few-shot), 단계별 사고(chain-of-thought), 제약 조건 명시 등의 기법이 있어요.",
+  easy: "좋은 질문을 하는 기술이에요. '맛있는 거 추천해줘'보다 '서울 강남, 2인, 이탈리안, 예산 10만원, 조용한 분위기'라고 물어보면 훨씬 좋은 답을 받죠. AI한테도 구체적으로 물어야 좋은 답이 나와요.",
+  code: `// 나쁜 프롬프트\n"코드 짜줘"\n\n// 좋은 프롬프트\n"NestJS에서 JWT 인증 Guard를 만들어줘.\n- Passport 사용\n- 만료된 토큰은 401 반환\n- 테스트 코드 포함\n- TypeScript strict 모드"`
+},
+{
+  cat: "ai", title: "RAG (Retrieval-Augmented Generation)",
+  tags: ["아키텍처"],
+  basic: "외부 데이터를 검색(Retrieval)해서 AI 응답 생성에 활용하는 기법입니다. LLM의 학습 데이터에 없는 최신 정보나 회사 내부 문서를 답변에 포함시킬 수 있어요. 벡터 DB + LLM 조합이 일반적.",
+  easy: "오픈북 시험이에요. AI가 모든 걸 외우고 있는 대신, 질문 받으면 관련 자료(문서, DB)를 먼저 찾아보고 그걸 참고해서 답합니다. 그래서 최신 정보도, 회사 전용 정보도 답할 수 있어요.",
+  code: `// RAG 기본 흐름\n// 1. 질문을 벡터로 변환 (임베딩)\nconst queryVector = await embed(question);\n\n// 2. 벡터 DB에서 관련 문서 검색\nconst docs = await vectorDB.search(queryVector, { topK: 5 });\n\n// 3. 검색된 문서 + 질문을 LLM에 전달\nconst answer = await llm.chat({\n  system: "다음 문서를 참고해서 답하세요: " + docs,\n  user: question\n});`
+},
+{
+  cat: "ai", title: "임베딩 (Embedding)",
+  tags: ["기초"],
+  basic: "텍스트, 이미지 등을 고정 길이의 숫자 벡터로 변환하는 것입니다. 의미가 비슷한 것은 벡터 공간에서 가까이 위치합니다. 유사도 검색, 추천, RAG의 핵심 기술이에요.",
+  easy: "좌표 찍기예요. '강아지'와 '퍼피'는 지도에서 가까운 곳에 찍히고, '자동차'는 먼 곳에 찍힙니다. 컴퓨터가 '의미적으로 비슷하다'를 이해하게 하는 방법이에요.",
+},
+{
+  cat: "ai", title: "벡터 데이터베이스",
+  tags: ["아키텍처"],
+  basic: "임베딩 벡터를 저장하고 유사도 검색을 수행하는 특수 DB입니다. Pinecone, Weaviate, Chroma, pgvector가 대표적. '이것과 비슷한 것 찾아줘' 쿼리를 빠르게 처리합니다.",
+  easy: "도서관 사서예요. 일반 DB가 '정확히 이 제목의 책 찾아줘'라면, 벡터 DB는 '이 책이랑 비슷한 느낌의 책 추천해줘'를 할 수 있어요. 의미 기반 검색이 가능합니다.",
+},
+{
+  cat: "ai", title: "파인튜닝 (Fine-tuning)",
+  tags: ["학습"],
+  basic: "사전 학습된 모델을 특정 도메인이나 작업에 맞게 추가 학습시키는 것입니다. 전체 모델을 다시 학습하는 것보다 적은 데이터와 비용으로 성능을 개선할 수 있어요. LoRA, QLoRA 같은 효율적 기법도 있습니다.",
+  easy: "종합병원 의사(범용 모델)를 피부과 전문의(특화 모델)로 만드는 거예요. 의대를 다시 다닐 필요 없이, 피부과 케이스만 추가로 공부시키면 피부 질환 진단을 더 잘하게 됩니다.",
+},
+{
+  cat: "ai", title: "Hallucination (환각)",
+  tags: ["한계"],
+  basic: "AI가 사실이 아닌 정보를 자신 있게 생성하는 현상입니다. 존재하지 않는 논문 인용, 잘못된 코드, 거짓 사실을 마치 맞는 것처럼 답합니다. RAG, fact-checking, 프롬프트 설계로 완화할 수 있어요.",
+  easy: "자신감 넘치는 거짓말쟁이예요. '잘 모르겠어요'라고 하는 대신, 그럴듯하게 지어냅니다. 면접에서 모르는 질문에 아는 척하는 것과 비슷해요. 그래서 AI 답변은 항상 검증해야 합니다.",
+},
+{
+  cat: "ai", title: "Temperature (온도)",
+  tags: ["파라미터"],
+  basic: "AI 응답의 무작위성을 조절하는 파라미터입니다. 0에 가까울수록 확정적(같은 답), 1에 가까울수록 창의적(다양한 답). 코드 생성은 낮게(0~0.2), 창작은 높게(0.7~1) 설정합니다.",
+  easy: "요리 간 조절이에요. 온도 0은 레시피대로 정확하게(코딩, 번역). 온도 1은 셰프의 즉흥 요리(창작, 브레인스토밍). 정확한 답이 필요하면 낮게, 다양한 아이디어가 필요하면 높게.",
+  code: `// 코드 생성 — 정확하게\nconst response = await anthropic.messages.create({\n  model: 'claude-sonnet-4-20250514',\n  temperature: 0,\n  messages: [{ role: 'user', content: 'JWT 검증 함수 만들어줘' }]\n});\n\n// 아이디어 — 창의적으로\nconst ideas = await anthropic.messages.create({\n  model: 'claude-sonnet-4-20250514',\n  temperature: 0.9,\n  messages: [{ role: 'user', content: '스타트업 아이디어 10개' }]\n});`
+},
+{
+  cat: "ai", title: "System Prompt (시스템 프롬프트)",
+  tags: ["실무"],
+  basic: "AI의 역할, 성격, 제약 조건을 설정하는 초기 지시문입니다. 사용자 메시지보다 먼저 처리되어 AI의 행동 방식을 정의합니다. '당신은 한국어 번역가입니다' 같은 역할 지정이 대표적이에요.",
+  easy: "배우에게 주는 대본의 역할 설명이에요. '당신은 친절한 상담사입니다. 항상 존댓말을 쓰세요.' 이렇게 설정하면 AI가 그 캐릭터로 연기합니다.",
+  code: `const response = await anthropic.messages.create({\n  model: 'claude-sonnet-4-20250514',\n  system: \`당신은 AllCrew 고객지원 봇입니다.\n규칙:\n- 한국어로만 답변\n- 모르는 내용은 "담당자에게 연결해드리겠습니다" 응답\n- 개인정보 절대 요청하지 않기\`,\n  messages: [{ role: 'user', content: '급여 정산이 안 돼요' }]\n});`
+},
+{
+  cat: "ai", title: "API 호출 (Anthropic SDK)",
+  tags: ["실무"],
+  basic: "AI 모델을 코드에서 호출하는 방법입니다. Anthropic SDK로 Claude를 호출하고, 응답을 받아 처리합니다. 메시지 배열로 대화 컨텍스트를 유지하며, 스트리밍으로 실시간 응답도 가능해요.",
+  easy: "전화 주문이에요. AI 회사(Anthropic)에 전화(API)해서 '이거 만들어주세요'(프롬프트)라고 하면, 결과물(응답)을 보내줍니다. 주문 내역서(API 키)가 있어야 주문할 수 있어요.",
+  code: `import Anthropic from '@anthropic-ai/sdk';\n\nconst client = new Anthropic();\n\nconst message = await client.messages.create({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1024,\n  messages: [\n    { role: 'user', content: '안녕!' }\n  ]\n});\n\nconsole.log(message.content[0].text);`
+},
+{
+  cat: "ai", title: "스트리밍 (Streaming)",
+  tags: ["실무"],
+  basic: "AI 응답을 한번에 받지 않고, 토큰 단위로 실시간 수신하는 방식입니다. ChatGPT에서 글자가 하나씩 나타나는 것이 스트리밍. 사용자 체감 속도가 훨씬 빨라집니다.",
+  easy: "편지를 다 쓸 때까지 기다렸다가 한번에 받는 것(일반) vs 한 글자씩 실시간으로 보는 것(스트리밍). 내용은 같지만 기다리는 느낌이 완전히 다르죠.",
+  code: `const stream = client.messages.stream({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 1024,\n  messages: [{ role: 'user', content: '안녕!' }]\n});\n\nfor await (const event of stream) {\n  if (event.type === 'content_block_delta') {\n    process.stdout.write(event.delta.text);\n  }\n}`
+},
+{
+  cat: "ai", title: "Tool Use (Function Calling)",
+  tags: ["아키텍처"],
+  basic: "AI가 외부 도구(함수, API)를 직접 호출할 수 있게 하는 기능입니다. AI가 날씨를 물어보면 날씨 API를 호출하고, DB 조회가 필요하면 쿼리 함수를 실행합니다. AI를 실제 시스템과 연결하는 핵심 기술이에요.",
+  easy: "비서에게 권한을 주는 거예요. 그냥 대화만 하는 비서(기본 AI)에서, 일정 관리, 이메일 발송, 예약까지 할 수 있는 비서(Tool Use)로 업그레이드. 도구를 쥐어주면 실제로 일을 처리합니다.",
+  code: `const response = await client.messages.create({\n  model: 'claude-sonnet-4-20250514',\n  tools: [{\n    name: 'get_weather',\n    description: '도시의 현재 날씨 조회',\n    input_schema: {\n      type: 'object',\n      properties: {\n        city: { type: 'string', description: '도시 이름' }\n      },\n      required: ['city']\n    }\n  }],\n  messages: [{ role: 'user', content: '서울 날씨 알려줘' }]\n});`
+},
+{
+  cat: "ai", title: "MCP (Model Context Protocol)",
+  tags: ["아키텍처"],
+  basic: "AI 모델이 외부 데이터와 도구에 접근하는 표준 프로토콜입니다. Anthropic이 만든 오픈 표준. 하나의 프로토콜로 DB, API, 파일 시스템 등 다양한 소스에 연결할 수 있어요. USB-C처럼 AI의 범용 연결 규격입니다.",
+  easy: "만능 충전기예요. 예전에는 폰마다 충전기(연동 방식)가 달랐는데, USB-C(MCP)가 나오니 하나로 다 충전되죠. AI도 MCP 하나로 어떤 서비스든 연결할 수 있게 됩니다.",
+},
+{
+  cat: "ai", title: "에이전트 (AI Agent)",
+  tags: ["아키텍처"],
+  basic: "자율적으로 판단하고 행동하는 AI 시스템입니다. 단순 질답이 아니라, 목표를 받으면 계획을 세우고, 도구를 사용하고, 결과를 검증하고, 필요하면 재시도합니다. Claude Code가 대표적인 코딩 에이전트예요.",
+  easy: "인턴이에요. 일반 AI는 '이거 뭐야?'에 답하는 수준이지만, 에이전트는 '이 버그 고쳐'라고 하면 코드를 읽고, 원인을 찾고, 수정하고, 테스트까지 스스로 합니다.",
+},
+{
+  cat: "ai", title: "컨텍스트 윈도우 (Context Window)",
+  tags: ["기초"],
+  basic: "AI가 한 번에 처리할 수 있는 토큰의 최대량입니다. Claude는 200K 토큰(약 15만 단어). 컨텍스트가 클수록 긴 문서, 긴 대화를 처리할 수 있지만, 비용도 올라갑니다.",
+  easy: "책상 크기예요. 작은 책상에는 서류 몇 장만 올릴 수 있고, 큰 책상에는 보고서 수십 개를 펼쳐놓을 수 있죠. 컨텍스트 윈도우가 크면 AI가 더 많은 정보를 한번에 보면서 답할 수 있어요.",
+},
+{
+  cat: "ai", title: "Few-shot / Zero-shot",
+  tags: ["프롬프트"],
+  basic: "Zero-shot: 예시 없이 바로 지시. Few-shot: 몇 개의 예시를 함께 제공. 예시를 주면 AI가 패턴을 파악해서 더 정확한 결과를 만듭니다. 복잡한 포맷이 필요할 때 few-shot이 효과적이에요.",
+  easy: "요리 주문이에요. Zero-shot: '맛있는 거 만들어주세요'(예시 없이). Few-shot: '이런 맛, 이런 플레이팅으로요'하고 사진 3장 보여주기. 예시를 보여줄수록 원하는 결과에 가까워져요.",
+  code: `// Few-shot 예시\nconst prompt = \`다음 형식으로 번역해주세요:\n\n영어: Hello → 한국어: 안녕하세요 (인사)\n영어: Thank you → 한국어: 감사합니다 (감사)\n영어: Goodbye → 한국어:\`;`
+},
+{
+  cat: "ai", title: "Chain-of-Thought (사고 체인)",
+  tags: ["프롬프트"],
+  basic: "AI에게 단계별로 사고 과정을 보여달라고 요청하는 기법입니다. 복잡한 문제에서 정확도가 크게 올라갑니다. '단계별로 생각해보세요(Let's think step by step)'가 대표 프롬프트.",
+  easy: "수학 풀이 과정이에요. '답은 42'라고 바로 말하는 것보다, '먼저 X를 구하고, 그 다음 Y에 대입하면...' 하고 풀이를 보여주면 실수가 줄어들죠. AI도 마찬가지예요.",
+},
+{
+  cat: "ai", title: "Transformer 아키텍처",
+  tags: ["딥러닝"],
+  basic: "현대 LLM의 기반이 되는 신경망 구조입니다. 2017년 'Attention Is All You Need' 논문에서 제안. Self-Attention 메커니즘으로 입력의 모든 부분 간 관계를 동시에 계산합니다. GPT, BERT, Claude 모두 Transformer 기반이에요.",
+  easy: "독서 천재예요. 문장을 읽을 때 모든 단어가 다른 모든 단어와 어떤 관계인지를 동시에 파악합니다. '그가 사과를 먹었다'에서 '그'가 누군지, 이전 문맥을 참고해서 이해하는 거예요.",
+},
+{
+  cat: "ai", title: "Attention (어텐션)",
+  tags: ["딥러닝"],
+  basic: "입력의 각 부분이 다른 부분에 얼마나 주목해야 하는지를 계산하는 메커니즘입니다. '고양이가 매트 위에 앉았다'에서 '앉았다'가 '고양이'에 높은 어텐션을 줍니다. Transformer의 핵심이에요.",
+  easy: "형광펜이에요. 긴 문서를 읽을 때 중요한 부분에 형광펜을 칠하죠. AI도 문장에서 '지금 이 단어를 이해하려면 어디를 봐야 하지?'를 계산해서 중요한 곳에 집중합니다.",
+},
+{
+  cat: "ai", title: "토크나이저 (Tokenizer)",
+  tags: ["기초"],
+  basic: "텍스트를 토큰(숫자)으로 변환하는 도구입니다. BPE(Byte Pair Encoding)가 가장 많이 쓰입니다. 같은 문장도 토크나이저에 따라 토큰 수가 다릅니다. 한국어는 영어보다 토큰 수가 더 많아요.",
+  easy: "번역기예요. AI는 한글을 직접 못 읽고, 숫자만 이해해요. 토크나이저가 '안녕하세요'를 [1234, 5678] 같은 숫자로 바꿔줍니다. 영어는 효율적이고, 한국어는 좀 더 많은 숫자가 필요해요.",
+},
+{
+  cat: "ai", title: "프롬프트 캐싱",
+  tags: ["최적화"],
+  basic: "같은 시스템 프롬프트나 반복되는 컨텍스트를 캐싱해서 API 비용과 지연을 줄이는 기법입니다. Anthropic의 prompt caching은 동일 프리픽스를 재사용해서 최대 90% 비용 절감이 가능해요.",
+  easy: "단골 식당이에요. 매번 '저는 알레르기가 있고, 매운 건 안 되고...'라고 말하는 대신, 사장님이 이미 기억하고 있으니 '평소대로요'라고만 하면 됩니다. 시간과 비용이 절약돼요.",
+},
+{
+  cat: "ai", title: "가드레일 (Guardrails)",
+  tags: ["안전"],
+  basic: "AI가 유해하거나 의도하지 않은 응답을 하지 않도록 제한하는 안전장치입니다. 입력 필터링, 출력 검증, 주제 제한, 개인정보 마스킹 등이 포함됩니다. 프로덕션 AI 서비스의 필수 요소예요.",
+  easy: "놀이터 안전 펜스예요. 아이들(AI)이 자유롭게 놀되, 도로(위험한 영역)로 나가지 못하게 울타리를 칩니다. 욕설, 개인정보, 위험한 지시에 대한 안전장치예요.",
+},
+{
+  cat: "ai", title: "멀티모달 (Multimodal)",
+  tags: ["기초"],
+  basic: "텍스트, 이미지, 오디오, 비디오 등 여러 형태의 데이터를 동시에 이해하고 생성하는 AI입니다. Claude는 이미지+텍스트를 함께 입력받을 수 있어요. GPT-4V, Gemini도 멀티모달입니다.",
+  easy: "오감을 가진 AI예요. 텍스트만 읽는 AI(단일 모달)에서, 사진도 보고, 소리도 듣고, 영상도 이해하는 AI로 진화한 거예요. 디자인 시안을 보여주면서 '이거 코드로 만들어줘'가 가능합니다.",
+},
+{
+  cat: "ai", title: "Claude Code / Cursor / Copilot",
+  tags: ["도구"],
+  basic: "AI 기반 코딩 도구들입니다. Claude Code: CLI 기반 코딩 에이전트. Cursor: AI 내장 에디터. GitHub Copilot: VS Code 자동완성. 코드 작성, 디버깅, 리팩토링, 테스트 작성을 AI가 도와줍니다.",
+  easy: "페어 프로그래밍 파트너예요. 혼자 코딩하는 게 아니라 옆에 시니어 개발자(AI)가 앉아서 제안해주고, 에러 잡아주고, 보일러플레이트를 대신 짜줍니다.",
+},
+{
+  cat: "ai", title: "Vibe Coding",
+  tags: ["트렌드"],
+  basic: "AI에게 자연어로 의도를 설명하면 코드를 생성하는 개발 방식입니다. 정확한 문법을 몰라도, '이런 느낌으로 만들어줘'라고 하면 AI가 구현합니다. 테스트가 있어야 안전한 바이브 코딩이 됩니다.",
+  easy: "인테리어 디자이너에게 '모던하고 따뜻한 느낌으로요'라고 말하면 알아서 꾸며주는 거예요. 코딩도 마찬가지로 '이런 기능 만들어줘'라고 말하면 AI가 코드를 짜줍니다. 단, 결과는 꼭 확인해야 해요.",
+},
 ];
 
 // ============================================================
@@ -1609,6 +1777,19 @@ const QUIZZES = [
 { dataIdx: 75, q: "해시 함수의 특징은?", opts: ["양방향 변환 가능", "단방향, 원본 복구 불가", "항상 같은 길이 출력 안 함", "느리게 설계됨"], answer: 1 },
 { dataIdx: 78, q: "OAuth 2.0의 핵심 개념은?", opts: ["비밀번호를 직접 공유", "비밀번호 없이 토큰으로 인증/인가", "2단계 인증만 의미", "암호화 알고리즘"], answer: 1 },
 { dataIdx: 79, q: "XSS 공격이란?", opts: ["서버를 물리적으로 파괴", "악성 스크립트를 웹페이지에 삽입하는 공격", "비밀번호를 무작위 대입", "DNS를 변조"], answer: 1 },
+// ai
+{ q: "LLM이 텍스트를 생성하는 방식은?", opts: ["규칙 기반 문법 적용", "다음 토큰을 예측하는 방식", "키워드 검색", "템플릿 복사"], answer: 1, cat: "ai" },
+{ q: "토큰(Token)이란?", opts: ["API 비밀번호", "LLM이 텍스트를 처리하는 최소 단위", "서버 세션 ID", "암호화 키"], answer: 1, cat: "ai" },
+{ q: "프롬프트 엔지니어링의 핵심은?", opts: ["코드를 짧게 쓰기", "AI에게 원하는 결과를 얻도록 입력을 설계", "서버 성능 최적화", "DB 쿼리 최적화"], answer: 1, cat: "ai" },
+{ q: "RAG의 R(Retrieval)은 무엇을 의미하나요?", opts: ["무작위 생성", "외부 데이터 검색", "반복 학습", "응답 재생성"], answer: 1, cat: "ai" },
+{ q: "임베딩(Embedding)의 결과물은?", opts: ["텍스트 요약", "숫자 벡터", "이미지", "SQL 쿼리"], answer: 1, cat: "ai" },
+{ q: "Temperature 0은 어떤 응답을 만드나요?", opts: ["가장 창의적인 응답", "가장 확정적이고 일관된 응답", "가장 긴 응답", "응답 거부"], answer: 1, cat: "ai" },
+{ q: "Hallucination(환각)이란?", opts: ["AI가 꿈을 꾸는 것", "AI가 사실이 아닌 정보를 자신있게 생성", "서버 과부하", "네트워크 오류"], answer: 1, cat: "ai" },
+{ q: "Tool Use(Function Calling)의 역할은?", opts: ["AI의 속도를 높이기", "AI가 외부 도구/API를 호출할 수 있게 하기", "코드를 컴파일하기", "DB를 백업하기"], answer: 1, cat: "ai" },
+{ q: "컨텍스트 윈도우란?", opts: ["브라우저 창 크기", "AI가 한 번에 처리할 수 있는 토큰의 최대량", "서버 메모리", "화면 해상도"], answer: 1, cat: "ai" },
+{ q: "Few-shot 프롬프팅이란?", opts: ["적은 데이터로 학습", "예시를 몇 개 제공해서 패턴을 알려주는 기법", "빠른 응답 모드", "소량 배포"], answer: 1, cat: "ai" },
+{ q: "AI 에이전트가 단순 챗봇과 다른 점은?", opts: ["더 빠르다", "자율적으로 판단하고 도구를 사용해서 행동한다", "더 짧게 답한다", "이미지를 생성한다"], answer: 1, cat: "ai" },
+{ q: "MCP(Model Context Protocol)는?", opts: ["새로운 프로그래밍 언어", "AI가 외부 데이터/도구에 접근하는 표준 프로토콜", "암호화 프로토콜", "데이터베이스 형식"], answer: 1, cat: "ai" },
 ];
 
 // ============================================================
@@ -1621,6 +1802,7 @@ const CATS = {
   infra:    { name: '인프라', icon: '☁️', color: 'var(--purple)', bg: 'var(--purple-dim)' },
   cs:       { name: 'CS 기초', icon: '🧠', color: 'var(--pink)', bg: 'var(--pink-dim)' },
   browser:  { name: '브라우저 API', icon: '🌐', color: 'var(--yellow)', bg: 'var(--yellow-dim)' },
+  ai:       { name: 'AI / LLM', icon: '🤖', color: 'var(--red)', bg: 'var(--red-dim)' },
 };
 
 // ============================================================
@@ -2100,7 +2282,10 @@ let quizState = { mode: null, questions: [], current: 0, score: 0, answered: fal
 
 function getQuizzesByCat(cat) {
   if (cat === 'all') return [...QUIZZES];
-  return QUIZZES.filter(q => DATA[q.dataIdx]?.cat === cat);
+  return QUIZZES.filter(q => {
+    if (q.cat) return q.cat === cat;
+    return DATA[q.dataIdx]?.cat === cat;
+  });
 }
 
 function startQuiz(cat, count) {
@@ -2264,7 +2449,8 @@ function renderQuiz() {
   }
 
   const q = qs[ci];
-  const concept = DATA[q.dataIdx];
+  const concept = q.dataIdx != null ? DATA[q.dataIdx] : null;
+  const qCat = q.cat || concept?.cat || 'common';
   const pct = ((ci) / qs.length) * 100;
 
   let html = `<div class="quiz-container">
@@ -2273,7 +2459,7 @@ function renderQuiz() {
       <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
     </div>
     <div class="quiz-question">${q.q}</div>
-    <div class="quiz-hint">${CATS[concept.cat]?.icon || ''} ${concept.title}</div>
+    <div class="quiz-hint">${CATS[qCat]?.icon || ''} ${concept ? concept.title : CATS[qCat]?.name || ''}</div>
     <div class="quiz-options">`;
 
   q._opts.forEach((opt, i) => {
@@ -2311,11 +2497,12 @@ function answerQuiz(selected) {
   });
 
   // Show explanation
-  const concept = DATA[q.dataIdx];
+  const concept = q.dataIdx != null ? DATA[q.dataIdx] : null;
+  const correctAnswer = q._opts[correct];
   document.getElementById('quizExplain').innerHTML = `
     <div class="quiz-explain">
       <strong>${isCorrect ? '✅ 정답!' : '❌ 오답!'}</strong><br><br>
-      ${concept.easy}
+      ${concept ? concept.easy : `정답: ${correctAnswer}`}
     </div>`;
 
   document.getElementById('quizNext').style.display = 'block';
