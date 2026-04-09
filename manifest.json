@@ -1,0 +1,25 @@
+{
+  "name": "Dev Notes - 개발 노트",
+  "short_name": "Dev Notes",
+  "description": "개발자 필수 개념 노트앱",
+  "start_url": "/kwaktudy/",
+  "scope": "/kwaktudy/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
