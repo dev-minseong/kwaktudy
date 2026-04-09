@@ -620,6 +620,179 @@ mark {
 .toast.show { animation: popIn 0.4s ease forwards; }
 
 .card { animation: fadeIn 0.3s ease; }
+
+/* Quiz */
+.quiz-container {
+  padding: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.quiz-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.quiz-progress {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.quiz-progress-bar {
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.quiz-question {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.quiz-hint {
+  font-size: 13px;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quiz-option {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.5;
+}
+
+.quiz-option:active { transform: scale(0.98); }
+
+.quiz-option.correct {
+  border-color: var(--green);
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.quiz-option.wrong {
+  border-color: var(--red);
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.quiz-option.disabled { pointer-events: none; }
+
+.quiz-explain {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text2);
+  animation: fadeIn 0.3s ease;
+}
+
+.quiz-explain strong { color: var(--text); }
+
+.quiz-next-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.quiz-next-btn:active { opacity: 0.8; }
+
+.quiz-result {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.quiz-result-icon { font-size: 64px; margin-bottom: 16px; }
+.quiz-result-score { font-size: 48px; font-weight: 800; color: var(--accent); }
+.quiz-result-label { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+.quiz-result-detail {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 20px 0;
+}
+
+.quiz-result-stat {
+  text-align: center;
+}
+
+.quiz-result-stat .num {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.quiz-result-stat .label {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.quiz-mode-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 16px;
+}
+
+.quiz-mode-btn {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s;
+}
+
+.quiz-mode-btn:active { border-color: var(--accent); }
+
+.quiz-mode-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.quiz-mode-desc {
+  font-size: 12px;
+  color: var(--text2);
+}
 </style>
 </head>
 <body>
@@ -668,6 +841,10 @@ mark {
   <button class="nav-btn" data-view="bookmarks" onclick="setView('bookmarks')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     북마크
+  </button>
+  <button class="nav-btn" data-view="quiz" onclick="setView('quiz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    퀴즈
   </button>
   <button class="nav-btn" data-view="achievements" onclick="setView('achievements')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
@@ -1377,6 +1554,68 @@ const DATA = [
 ];
 
 // ============================================================
+// QUIZ DATA — 각 개념별 문제
+// ============================================================
+const QUIZZES = [
+// common
+{ dataIdx: 0, q: "클래스(Class)란 무엇인가요?", opts: ["객체를 만들기 위한 설계도", "실행 중인 프로그램", "데이터를 저장하는 배열", "함수의 다른 이름"], answer: 0 },
+{ dataIdx: 1, q: "객체(Object)의 설명으로 올바른 것은?", opts: ["클래스 자체를 의미한다", "클래스를 기반으로 만들어진 실체", "함수만 포함한다", "변경할 수 없다"], answer: 1 },
+{ dataIdx: 2, q: "상속(Inheritance)에서 자식 클래스가 하는 것은?", opts: ["부모를 삭제한다", "부모의 속성과 메서드를 물려받는다", "새로운 언어를 만든다", "메모리를 공유한다"], answer: 1 },
+{ dataIdx: 3, q: "다형성(Polymorphism)이란?", opts: ["하나의 클래스만 사용하는 것", "같은 인터페이스로 다른 동작을 하는 것", "변수를 숨기는 것", "코드를 복사하는 것"], answer: 1 },
+{ dataIdx: 4, q: "캡슐화의 목적은?", opts: ["코드를 길게 만들기", "내부 데이터를 외부에서 직접 접근하지 못하게 보호", "상속을 금지하기", "함수를 삭제하기"], answer: 1 },
+{ dataIdx: 5, q: "추상화란?", opts: ["모든 코드를 공개하는 것", "복잡한 내부를 감추고 필요한 기능만 노출", "변수 이름을 짧게 쓰는 것", "코드를 암호화하는 것"], answer: 1 },
+{ dataIdx: 6, q: "인터페이스의 역할은?", opts: ["데이터를 저장한다", "객체가 구현해야 할 계약(규격)을 정의", "CSS 스타일을 적용한다", "서버를 실행한다"], answer: 1 },
+{ dataIdx: 7, q: "const로 선언한 변수는?", opts: ["언제든 변경 가능", "한번 할당하면 재할당 불가", "자동으로 삭제됨", "전역에서만 사용 가능"], answer: 1 },
+{ dataIdx: 9, q: "함수의 반환값이란?", opts: ["함수의 이름", "함수가 처리 후 돌려주는 결과", "매개변수의 개수", "에러 메시지"], answer: 1 },
+{ dataIdx: 10, q: "콜백 함수란?", opts: ["즉시 실행되는 함수", "다른 함수에 인자로 전달되어 나중에 호출되는 함수", "전역 함수", "익명 함수의 다른 이름"], answer: 1 },
+{ dataIdx: 11, q: "Promise의 세 가지 상태는?", opts: ["start, running, end", "pending, fulfilled, rejected", "open, close, error", "init, process, done"], answer: 1 },
+{ dataIdx: 12, q: "async/await에서 await의 역할은?", opts: ["함수를 삭제한다", "Promise가 처리될 때까지 기다린다", "에러를 무시한다", "변수를 선언한다"], answer: 1 },
+{ dataIdx: 13, q: "배열의 map() 메서드는?", opts: ["배열을 삭제한다", "각 요소를 변환해서 새 배열을 반환", "배열을 정렬한다", "첫 번째 요소만 반환"], answer: 1 },
+{ dataIdx: 15, q: "스택(Stack)의 특징은?", opts: ["FIFO (선입선출)", "LIFO (후입선출)", "랜덤 접근", "정렬 필수"], answer: 1 },
+{ dataIdx: 16, q: "O(n)의 의미는?", opts: ["항상 1초 걸린다", "입력 크기에 비례해서 시간 증가", "무한 루프", "메모리를 n배 사용"], answer: 1 },
+{ dataIdx: 17, q: "git commit의 역할은?", opts: ["코드를 삭제한다", "변경사항을 저장점으로 기록", "브랜치를 병합한다", "원격에 푸시한다"], answer: 1 },
+{ dataIdx: 19, q: "클로저(Closure)란?", opts: ["함수를 삭제하는 것", "함수가 선언될 때의 스코프를 기억하는 것", "반복문의 다른 이름", "에러 처리 방법"], answer: 1 },
+{ dataIdx: 20, q: "TypeScript의 주요 장점은?", opts: ["실행 속도가 빨라진다", "컴파일 타임에 타입 오류를 잡아준다", "CSS를 자동 생성한다", "서버가 필요 없다"], answer: 1 },
+{ dataIdx: 22, q: "SOLID에서 S(단일 책임 원칙)는?", opts: ["클래스는 여러 역할을 해야 한다", "한 클래스는 하나의 책임만 가져야 한다", "상속을 금지한다", "인터페이스를 사용하지 않는다"], answer: 1 },
+{ dataIdx: 24, q: "REST API에서 POST 메서드의 역할은?", opts: ["데이터 조회", "데이터 생성", "데이터 삭제", "서버 재시작"], answer: 1 },
+{ dataIdx: 26, q: "HTTP 404 상태 코드의 의미는?", opts: ["서버 에러", "요청 성공", "리소스를 찾을 수 없음", "인증 필요"], answer: 2 },
+{ dataIdx: 27, q: ".env 파일을 .gitignore에 추가하는 이유는?", opts: ["파일이 너무 커서", "민감한 정보(비밀번호 등)가 Git에 올라가지 않게", "빌드 속도를 위해", "린트 에러를 방지"], answer: 1 },
+// frontend
+{ dataIdx: 29, q: "Virtual DOM의 장점은?", opts: ["실제 DOM보다 크다", "변경된 부분만 실제 DOM에 반영해서 성능 최적화", "CSS를 자동 생성", "서버에서 실행"], answer: 1 },
+{ dataIdx: 30, q: "React 컴포넌트란?", opts: ["CSS 파일", "UI를 독립적이고 재사용 가능한 조각으로 나눈 것", "데이터베이스 테이블", "서버 설정 파일"], answer: 1 },
+{ dataIdx: 31, q: "Props와 State의 차이는?", opts: ["같은 것이다", "Props는 외부에서 받고 읽기 전용, State는 내부에서 관리하고 변경 가능", "State는 읽기 전용이다", "Props만 리렌더링을 일으킨다"], answer: 1 },
+{ dataIdx: 33, q: "useEffect의 cleanup 함수는 언제 실행되나요?", opts: ["컴포넌트가 처음 렌더링될 때", "컴포넌트가 언마운트되거나 의존성이 변경될 때", "버튼을 클릭할 때", "서버가 응답할 때"], answer: 1 },
+{ dataIdx: 34, q: "React Query의 useQuery는 무엇을 위한 훅인가요?", opts: ["폼 제출", "서버 데이터 조회 및 캐싱", "CSS 애니메이션", "라우팅"], answer: 1 },
+{ dataIdx: 36, q: "Flexbox의 justify-content는 어느 축을 정렬하나요?", opts: ["교차축", "주축(main axis)", "Z축", "모든 축"], answer: 1 },
+{ dataIdx: 38, q: "반응형 디자인에서 '모바일 퍼스트'란?", opts: ["모바일 앱만 만드는 것", "모바일 스타일을 먼저 작성하고 큰 화면으로 확장", "데스크톱을 무시하는 것", "모바일에서만 동작하는 것"], answer: 1 },
+{ dataIdx: 40, q: "Next.js App Router에서 page.tsx의 역할은?", opts: ["레이아웃 정의", "해당 경로의 페이지 컴포넌트", "에러 처리", "미들웨어"], answer: 1 },
+{ dataIdx: 41, q: "SSR(Server Side Rendering)이란?", opts: ["브라우저에서 렌더링", "서버에서 HTML을 생성해서 전달", "빌드 시 미리 생성", "렌더링을 하지 않는 것"], answer: 1 },
+{ dataIdx: 44, q: "CORS 에러가 발생하는 이유는?", opts: ["서버가 다운됨", "브라우저가 다른 도메인의 리소스 요청을 차단", "JavaScript 문법 에러", "CSS 충돌"], answer: 1 },
+// backend
+{ dataIdx: 46, q: "NestJS에서 Controller의 역할은?", opts: ["DB 쿼리 실행", "HTTP 요청을 받아 처리(라우팅)", "CSS 스타일링", "파일 업로드"], answer: 1 },
+{ dataIdx: 47, q: "의존성 주입(DI)의 장점은?", opts: ["코드가 길어진다", "테스트 시 Mock으로 교체하기 쉽다", "성능이 좋아진다", "타입 체크가 불필요하다"], answer: 1 },
+{ dataIdx: 48, q: "ORM(Prisma)의 역할은?", opts: ["CSS 프레임워크", "객체로 DB를 조작하는 도구", "테스트 러너", "번들러"], answer: 1 },
+{ dataIdx: 50, q: "JWT의 구성 요소 3가지는?", opts: ["HTML, CSS, JS", "Header, Payload, Signature", "ID, Password, Token", "Request, Response, Error"], answer: 1 },
+{ dataIdx: 52, q: "NestJS Guard의 역할은?", opts: ["CSS 보호", "요청의 인증/인가를 검사", "에러 로깅", "파일 압축"], answer: 1 },
+{ dataIdx: 54, q: "Redis를 캐시로 사용하는 이유는?", opts: ["무료여서", "인메모리라 DB보다 10~100배 빠르다", "SQL을 지원해서", "파일을 저장할 수 있어서"], answer: 1 },
+{ dataIdx: 55, q: "WebSocket과 HTTP의 차이는?", opts: ["같다", "WebSocket은 양방향 실시간, HTTP는 요청-응답 단방향", "HTTP가 더 빠르다", "WebSocket은 보안이 없다"], answer: 1 },
+{ dataIdx: 56, q: "N+1 문제를 해결하는 방법은?", opts: ["쿼리를 더 많이 보낸다", "include/JOIN으로 한 번에 조회", "캐시를 삭제한다", "인덱스를 삭제한다"], answer: 1 },
+{ dataIdx: 57, q: "트랜잭션에서 하나라도 실패하면?", opts: ["성공한 것만 반영", "전체 롤백", "에러를 무시", "서버 재시작"], answer: 1 },
+// infra
+{ dataIdx: 61, q: "Docker의 핵심 장점은?", opts: ["코드를 자동 작성", "어떤 환경에서든 동일하게 실행", "무료 호스팅", "자동 테스트"], answer: 1 },
+{ dataIdx: 63, q: "로드밸런싱이란?", opts: ["서버 한 대에 집중", "트래픽을 여러 서버에 분산", "데이터 백업", "코드 압축"], answer: 1 },
+{ dataIdx: 65, q: "CI/CD에서 CI란?", opts: ["Continuous Internet", "Continuous Integration (지속적 통합)", "Code Injection", "Client Interface"], answer: 1 },
+{ dataIdx: 68, q: "AWS S3의 용도는?", opts: ["가상 서버", "파일 저장소", "DNS 관리", "로드밸런서"], answer: 1 },
+{ dataIdx: 70, q: "HTTPS와 HTTP의 차이는?", opts: ["속도 차이", "HTTPS는 데이터를 암호화해서 전송", "포트 번호만 다름", "차이 없음"], answer: 1 },
+// cs
+{ dataIdx: 71, q: "프로세스와 스레드의 차이는?", opts: ["같은 개념이다", "프로세스는 독립 메모리, 스레드는 메모리 공유", "스레드가 더 크다", "프로세스는 메모리가 없다"], answer: 1 },
+{ dataIdx: 73, q: "TCP의 특징으로 올바른 것은?", opts: ["비연결, 빠름", "연결 지향, 신뢰성 보장, 순서 보장", "데이터 유실 허용", "실시간 게임에 적합"], answer: 1 },
+{ dataIdx: 75, q: "해시 함수의 특징은?", opts: ["양방향 변환 가능", "단방향, 원본 복구 불가", "항상 같은 길이 출력 안 함", "느리게 설계됨"], answer: 1 },
+{ dataIdx: 78, q: "OAuth 2.0의 핵심 개념은?", opts: ["비밀번호를 직접 공유", "비밀번호 없이 토큰으로 인증/인가", "2단계 인증만 의미", "암호화 알고리즘"], answer: 1 },
+{ dataIdx: 79, q: "XSS 공격이란?", opts: ["서버를 물리적으로 파괴", "악성 스크립트를 웹페이지에 삽입하는 공격", "비밀번호를 무작위 대입", "DNS를 변조"], answer: 1 },
+];
+
+// ============================================================
 // CATEGORY CONFIG
 // ============================================================
 const CATS = {
@@ -1420,6 +1659,9 @@ const ACHIEVEMENTS = [
   { id: 'night_owl', icon: '🦉', name: '야행성', desc: '밤 11시 이후 학습', check: s => new Date().getHours() >= 23 && s.todayCount > 0 },
   { id: 'early_bird', icon: '🌅', name: '얼리버드', desc: '아침 7시 전 학습', check: s => new Date().getHours() < 7 && s.todayCount > 0 },
   { id: 'random_3', icon: '🎲', name: '랜덤 탐험가', desc: '랜덤 모드 3번 사용', check: s => s.randomUses >= 3 },
+  { id: 'quiz_first', icon: '❓', name: '첫 퀴즈', desc: '퀴즈 1회 완료', check: s => s.quizCount >= 1 },
+  { id: 'quiz_5', icon: '🧪', name: '퀴즈 마니아', desc: '퀴즈 5회 완료', check: s => s.quizCount >= 5 },
+  { id: 'quiz_perfect', icon: '💯', name: '만점왕', desc: '퀴즈에서 전문 맞기', check: s => s.quizPerfect >= 1 },
 ];
 
 const DAILY_GOAL = 5;
@@ -1443,6 +1685,9 @@ function loadState() {
     lastDate: localStorage.getItem('dn-last-date') || '',
     todayReads: JSON.parse(localStorage.getItem('dn-today-reads') || '[]'),
     randomUses: parseInt(localStorage.getItem('dn-random-uses') || '0'),
+    quizCount: parseInt(localStorage.getItem('dn-quiz-count') || '0'),
+    quizPerfect: parseInt(localStorage.getItem('dn-quiz-perfect') || '0'),
+    quizBest: JSON.parse(localStorage.getItem('dn-quiz-best') || '{}'),
   };
 }
 
@@ -1455,6 +1700,9 @@ function saveState(state) {
   localStorage.setItem('dn-last-date', state.lastDate);
   localStorage.setItem('dn-today-reads', JSON.stringify(state.todayReads));
   localStorage.setItem('dn-random-uses', state.randomUses.toString());
+  localStorage.setItem('dn-quiz-count', state.quizCount.toString());
+  localStorage.setItem('dn-quiz-perfect', state.quizPerfect.toString());
+  localStorage.setItem('dn-quiz-best', JSON.stringify(state.quizBest));
 }
 
 let state = loadState();
@@ -1540,6 +1788,8 @@ function checkAchievements() {
     streak: state.streak,
     todayCount: getTodayCount(),
     randomUses: state.randomUses,
+    quizCount: state.quizCount,
+    quizPerfect: state.quizPerfect,
   };
   for (const a of ACHIEVEMENTS) {
     if (!state.achievements.includes(a.id) && a.check(ctx)) {
@@ -1684,6 +1934,11 @@ function renderAchievements() {
 }
 
 function renderContent() {
+  if (currentView === 'quiz') {
+    renderQuizModeSelect();
+    return;
+  }
+
   if (currentView === 'achievements') {
     renderAchievements();
     return;
@@ -1879,6 +2134,206 @@ window.addEventListener('scroll', () => {
 document.getElementById('toast').addEventListener('click', () => {
   document.getElementById('toast').classList.remove('show');
 });
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+let quizState = { mode: null, questions: [], current: 0, score: 0, answered: false };
+
+function getQuizzesByCat(cat) {
+  if (cat === 'all') return [...QUIZZES];
+  return QUIZZES.filter(q => DATA[q.dataIdx]?.cat === cat);
+}
+
+function startQuiz(cat, count) {
+  const pool = getQuizzesByCat(cat);
+  const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, count);
+  // Shuffle options for each question
+  shuffled.forEach(q => {
+    const correctText = q.opts[q.answer];
+    const shuffledOpts = [...q.opts].sort(() => Math.random() - 0.5);
+    q._opts = shuffledOpts;
+    q._answer = shuffledOpts.indexOf(correctText);
+  });
+  quizState = { mode: cat, questions: shuffled, current: 0, score: 0, answered: false };
+  renderQuiz();
+}
+
+function renderQuizModeSelect() {
+  const contentEl = document.getElementById('content');
+  const total = QUIZZES.length;
+
+  let html = `<div style="text-align:center;padding:20px 0 10px">
+    <div style="font-size:48px;margin-bottom:8px">🧠</div>
+    <div style="font-size:20px;font-weight:700">퀴즈 모드</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:4px">총 ${total}문제 | 정답 +15 XP</div>
+  </div>`;
+
+  // Best scores
+  const hasBest = Object.keys(state.quizBest).length > 0;
+  if (hasBest) {
+    html += `<div style="margin:0 16px 16px;padding:12px;background:var(--surface);border-radius:10px;border:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">최고 기록</div>`;
+    Object.entries(state.quizBest).forEach(([key, val]) => {
+      const label = key === 'all' ? '전체' : (CATS[key]?.name || key);
+      html += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px">
+        <span>${label}</span><span style="color:var(--green);font-weight:700">${val.score}/${val.total} (${Math.round(val.score/val.total*100)}%)</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="quiz-mode-select">`;
+
+  // Full quiz
+  html += `<div class="quiz-mode-btn" onclick="startQuiz('all', 10)">
+    <div class="quiz-mode-title">🎯 종합 퀴즈 (10문제)</div>
+    <div class="quiz-mode-desc">전체 카테고리에서 랜덤 10문제</div>
+  </div>`;
+
+  // Quick quiz
+  html += `<div class="quiz-mode-btn" onclick="startQuiz('all', 5)">
+    <div class="quiz-mode-title">⚡ 빠른 퀴즈 (5문제)</div>
+    <div class="quiz-mode-desc">짧게 5문제만</div>
+  </div>`;
+
+  // By category
+  Object.entries(CATS).forEach(([key, cat]) => {
+    const count = getQuizzesByCat(key).length;
+    if (count > 0) {
+      html += `<div class="quiz-mode-btn" onclick="startQuiz('${key}', ${Math.min(count, 10)})">
+        <div class="quiz-mode-title">${cat.icon} ${cat.name} (${Math.min(count, 10)}문제)</div>
+        <div class="quiz-mode-desc">${count}문제 중 랜덤 출제</div>
+      </div>`;
+    }
+  });
+
+  html += `</div>`;
+  contentEl.innerHTML = html;
+}
+
+function renderQuiz() {
+  const contentEl = document.getElementById('content');
+  const qs = quizState.questions;
+  const ci = quizState.current;
+
+  if (ci >= qs.length) {
+    renderQuizResult();
+    return;
+  }
+
+  const q = qs[ci];
+  const concept = DATA[q.dataIdx];
+  const pct = ((ci) / qs.length) * 100;
+
+  let html = `<div class="quiz-container">
+    <div class="quiz-header">
+      <div class="quiz-progress">${ci + 1} / ${qs.length}</div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="quiz-question">${q.q}</div>
+    <div class="quiz-hint">${CATS[concept.cat]?.icon || ''} ${concept.title}</div>
+    <div class="quiz-options">`;
+
+  q._opts.forEach((opt, i) => {
+    html += `<button class="quiz-option" id="qopt-${i}" onclick="answerQuiz(${i})">${opt}</button>`;
+  });
+
+  html += `</div>
+    <div id="quizExplain"></div>
+    <div id="quizNext" style="display:none">
+      <button class="quiz-next-btn" onclick="nextQuiz()">${ci + 1 < qs.length ? '다음 문제' : '결과 보기'}</button>
+    </div>
+  </div>`;
+
+  contentEl.innerHTML = html;
+}
+
+function answerQuiz(selected) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+
+  const q = quizState.questions[quizState.current];
+  const correct = q._answer;
+  const isCorrect = selected === correct;
+
+  if (isCorrect) {
+    quizState.score++;
+    addXP(15, '퀴즈 정답');
+  }
+
+  // Mark options
+  document.querySelectorAll('.quiz-option').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === correct) el.classList.add('correct');
+    if (i === selected && !isCorrect) el.classList.add('wrong');
+  });
+
+  // Show explanation
+  const concept = DATA[q.dataIdx];
+  document.getElementById('quizExplain').innerHTML = `
+    <div class="quiz-explain">
+      <strong>${isCorrect ? '✅ 정답!' : '❌ 오답!'}</strong><br><br>
+      ${concept.easy}
+    </div>`;
+
+  document.getElementById('quizNext').style.display = 'block';
+  renderLevelBar();
+}
+
+function nextQuiz() {
+  quizState.current++;
+  quizState.answered = false;
+  renderQuiz();
+}
+
+function renderQuizResult() {
+  const contentEl = document.getElementById('content');
+  const total = quizState.questions.length;
+  const score = quizState.score;
+  const pct = Math.round((score / total) * 100);
+
+  let icon, msg;
+  if (pct === 100) { icon = '🏆'; msg = '완벽합니다!'; }
+  else if (pct >= 80) { icon = '🎉'; msg = '훌륭해요!'; }
+  else if (pct >= 60) { icon = '👍'; msg = '좋아요!'; }
+  else if (pct >= 40) { icon = '💪'; msg = '더 화이팅!'; }
+  else { icon = '📚'; msg = '복습이 필요해요'; }
+
+  // Save best score
+  const key = quizState.mode;
+  if (!state.quizBest[key] || score > state.quizBest[key].score) {
+    state.quizBest[key] = { score, total };
+  }
+  state.quizCount++;
+  if (pct === 100) state.quizPerfect++;
+  saveState(state);
+  checkAchievements();
+
+  let html = `<div class="quiz-result">
+    <div class="quiz-result-icon">${icon}</div>
+    <div class="quiz-result-score">${pct}%</div>
+    <div class="quiz-result-label">${msg}</div>
+    <div class="quiz-result-detail">
+      <div class="quiz-result-stat">
+        <div class="num" style="color:var(--green)">${score}</div>
+        <div class="label">정답</div>
+      </div>
+      <div class="quiz-result-stat">
+        <div class="num" style="color:var(--red)">${total - score}</div>
+        <div class="label">오답</div>
+      </div>
+      <div class="quiz-result-stat">
+        <div class="num" style="color:var(--accent)">${total}</div>
+        <div class="label">총 문제</div>
+      </div>
+    </div>
+    <button class="quiz-next-btn" onclick="renderQuizModeSelect()" style="margin-bottom:10px">다시 풀기</button>
+    <button class="quiz-next-btn" onclick="setView('all')" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">노트로 돌아가기</button>
+  </div>`;
+
+  contentEl.innerHTML = html;
+}
 
 // ============================================================
 // INIT
