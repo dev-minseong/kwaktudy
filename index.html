@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>개발 노트</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --text: #e8e8e8;
+  --text2: #999;
+  --accent: #3A89FF;
+  --accent-dim: rgba(58,137,255,0.12);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --orange: #fb923c;
+  --orange-dim: rgba(251,146,60,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --pink: #f472b6;
+  --pink-dim: rgba(244,114,182,0.12);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --radius: 14px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 15px;
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.header h1 span { color: var(--accent); }
+
+.stats {
+  font-size: 12px;
+  color: var(--text2);
+  background: var(--surface);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* Search */
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text2);
+}
+
+.search {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search:focus { border-color: var(--accent); }
+
+.search::placeholder { color: var(--text2); }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.tab .count {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Content */
+.content {
+  padding: 8px 16px 100px;
+}
+
+/* Category Section */
+.category-section {
+  margin-bottom: 24px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  position: sticky;
+  top: 90px;
+  z-index: 10;
+  background: var(--bg);
+}
+
+.category-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.category-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.category-header .cat-count {
+  font-size: 12px;
+  color: var(--text2);
+  margin-left: auto;
+}
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.card.bookmarked { border-color: var(--yellow); }
+
+.card-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+  padding-right: 8px;
+}
+
+.card-tags {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.card-chevron {
+  color: var(--text2);
+  transition: transform 0.25s;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.card.open .card-chevron { transform: rotate(180deg); }
+
+.card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.card.open .card-body { max-height: 2000px; }
+
+.card-content {
+  padding: 0 16px 16px;
+}
+
+.def-block {
+  margin-bottom: 14px;
+}
+
+.def-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.def-label.basic { color: var(--accent); }
+.def-label.easy { color: var(--green); }
+.def-label.example { color: var(--orange); }
+.def-label.tip { color: var(--purple); }
+.def-label.related { color: var(--pink); }
+
+.def-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.def-text code {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--accent);
+}
+
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.bookmark-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.card.bookmarked .bookmark-btn { opacity: 1; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10,10,10,0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 4px 12px;
+  transition: color 0.2s;
+}
+
+.nav-btn.active { color: var(--accent); }
+
+.nav-btn svg { width: 22px; height: 22px; }
+
+/* Highlight */
+mark {
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text2);
+}
+
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty h3 { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+.empty p { font-size: 13px; }
+
+/* Progress bar */
+.progress-wrap {
+  padding: 0 16px 6px;
+}
+
+.progress-bar {
+  height: 3px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(58,137,255,0.3);
+  z-index: 99;
+  transition: transform 0.2s;
+}
+
+.scroll-top.show { display: flex; }
+
+/* Level Badge */
+.level-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.level-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+
+.level-info { flex: 1; }
+
+.level-title {
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.level-title .rank { color: var(--yellow); }
+
+.xp-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.xp-text {
+  font-size: 10px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.streak-badge {
+  text-align: center;
+  padding: 4px 10px;
+  background: var(--orange-dim);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.streak-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--orange);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 9px;
+  color: var(--orange);
+  font-weight: 600;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 32px;
+  text-align: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.toast-icon { font-size: 48px; margin-bottom: 8px; }
+.toast-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.toast-sub { font-size: 13px; color: var(--text2); }
+.toast-xp { font-size: 14px; color: var(--green); font-weight: 700; margin-top: 6px; }
+
+/* Achievement badges */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px;
+}
+
+.achievement {
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.achievement.unlocked {
+  border-color: var(--yellow);
+  background: var(--yellow-dim);
+}
+
+.achievement.locked { opacity: 0.35; }
+
+.achievement-icon { font-size: 24px; }
+.achievement-name { font-size: 9px; margin-top: 4px; font-weight: 600; color: var(--text2); }
+.achievement.unlocked .achievement-name { color: var(--text); }
+
+/* Daily goal */
+.daily-goal {
+  margin: 0 16px 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.daily-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.daily-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.daily-dot.filled {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 6px rgba(52,211,153,0.4);
+}
+
+.daily-text {
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+}
+
+.daily-text strong { color: var(--text); }
+
+/* Card read indicator */
+.card-header .read-check {
+  color: var(--green);
+  flex-shrink: 0;
+  margin-right: 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card.read .read-check { opacity: 1; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  70% { transform: translate(-50%, -50%) scale(1.1); }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.toast.show { animation: popIn 0.4s ease forwards; }
+
+.card { animation: fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1><span>Dev</span> Notes</h1>
+    <span class="stats" id="stats"></span>
+  </div>
+  <div class="search-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" class="search" id="search" placeholder="개념 검색..." autocomplete="off">
+  </div>
+</div>
+
+<div class="level-bar" id="levelBar"></div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="daily-goal" id="dailyGoal"></div>
+
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+</div>
+
+<div class="content" id="content"></div>
+
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon"></div>
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-sub" id="toastSub"></div>
+  <div class="toast-xp" id="toastXp"></div>
+</div>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+</button>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-view="all" onclick="setView('all')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    전체
+  </button>
+  <button class="nav-btn" data-view="bookmarks" onclick="setView('bookmarks')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    북마크
+  </button>
+  <button class="nav-btn" data-view="achievements" onclick="setView('achievements')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+    업적
+  </button>
+  <button class="nav-btn" data-view="random" onclick="setView('random')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+    랜덤
+  </button>
+</nav>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const DATA = [
+
+// ──────────────────────────────────────────
+// 공통 개발 개념
+// ──────────────────────────────────────────
+{
+  cat: "common", title: "클래스 (Class)",
+  tags: ["OOP"],
+  basic: "객체(Object)를 만들기 위한 설계도(틀)입니다. 클래스 안에는 데이터(속성)와 그 데이터를 다루는 동작(메서드)을 함께 정의합니다. 이 설계도로 실제 객체를 만드는 걸 인스턴스화라고 해요.",
+  easy: "붕어빵 틀(클래스) 하나로 붕어빵(객체)을 여러 개 만들 수 있죠. 틀은 같지만 안에 팥을 넣으면 팥 붕어빵, 슈크림을 넣으면 슈크림 붕어빵. 틀 자체는 먹을 수 없고(클래스), 틀로 구워낸 붕어빵이 실제로 먹을 수 있는 것(인스턴스)이에요.",
+  code: `class BungEoBbang {\n  constructor(filling) {\n    this.filling = filling;\n  }\n  eat() {\n    return this.filling + ' 붕어빵 냠냠';\n  }\n}\nconst pat = new BungEoBbang('팥');\nconsole.log(pat.eat()); // 팥 붕어빵 냠냠`
+},
+{
+  cat: "common", title: "객체 (Object)",
+  tags: ["OOP"],
+  basic: "클래스를 기반으로 만들어진 실체입니다. 속성(프로퍼티)과 행동(메서드)을 가지고 있어요. 프로그램에서 데이터를 구조화하는 기본 단위입니다.",
+  easy: "진짜 붕어빵이에요. 틀(클래스)에서 나온 실물. 팥 맛이고, 먹을 수 있고, 뜨겁고... 이런 속성과 행동을 가진 실제 존재.",
+},
+{
+  cat: "common", title: "상속 (Inheritance)",
+  tags: ["OOP"],
+  basic: "부모 클래스의 속성과 메서드를 자식 클래스가 물려받는 것입니다. 코드 재사용성을 높이고, 계층적 관계를 표현할 수 있어요. <code>extends</code> 키워드를 사용합니다.",
+  easy: "부모님한테 유전자를 물려받는 거예요. 키, 외모 같은 특징은 그대로 받으면서, 자기만의 개성(새로운 메서드)도 추가할 수 있죠.",
+  code: `class Animal {\n  speak() { return '...' }\n}\nclass Dog extends Animal {\n  speak() { return '멍멍!' }\n}\nclass Cat extends Animal {\n  speak() { return '야옹!' }\n}`
+},
+{
+  cat: "common", title: "다형성 (Polymorphism)",
+  tags: ["OOP"],
+  basic: "같은 인터페이스(메서드 이름)를 호출해도, 실제 객체 타입에 따라 다른 동작을 하는 것입니다. 오버라이딩(재정의)과 오버로딩(같은 이름, 다른 매개변수)이 대표적이에요.",
+  easy: "리모컨의 '전원' 버튼은 하나지만, TV에 누르면 TV가 켜지고, 에어컨에 누르면 에어컨이 켜지죠. 같은 명령, 다른 결과.",
+},
+{
+  cat: "common", title: "캡슐화 (Encapsulation)",
+  tags: ["OOP"],
+  basic: "객체의 내부 데이터를 외부에서 직접 접근하지 못하게 숨기고, 정해진 메서드(getter/setter)를 통해서만 접근하게 하는 것입니다. 데이터 무결성을 보장해요.",
+  easy: "자판기예요. 내부 구조(동전 처리, 음료 저장)는 숨겨져 있고, 우리는 버튼(메서드)만 눌러서 음료를 받죠. 직접 손 넣어서 음료 꺼내면 안 되잖아요.",
+},
+{
+  cat: "common", title: "추상화 (Abstraction)",
+  tags: ["OOP"],
+  basic: "복잡한 내부 구현은 감추고, 필요한 기능만 외부에 노출하는 것입니다. 추상 클래스나 인터페이스로 '무엇을 할 수 있는지'만 정의하고, '어떻게 하는지'는 구현 클래스에 맡깁니다.",
+  easy: "자동차 운전할 때 엔진 내부 폭발 과정을 몰라도 핸들, 페달만 알면 되잖아요. 복잡한 건 숨기고 필요한 인터페이스만 보여주는 거예요.",
+},
+{
+  cat: "common", title: "인터페이스 (Interface)",
+  tags: ["OOP", "TypeScript"],
+  basic: "객체가 반드시 구현해야 할 메서드나 속성의 계약(Contract)입니다. '이 형태를 따라라'라고 강제하는 규격. TypeScript에서는 <code>interface</code>로 타입의 구조를 정의합니다.",
+  easy: "USB 포트 규격이에요. USB-C라는 인터페이스(규격)를 따르면, 충전기든 이어폰이든 케이블이든 다 꽂을 수 있죠. 내부가 어떻든 규격만 맞으면 됩니다.",
+  code: `interface Payable {\n  calculatePay(): number;\n  getPayDate(): Date;\n}\n\nclass FullTime implements Payable {\n  calculatePay() { return 3000000; }\n  getPayDate() { return new Date(); }\n}`
+},
+{
+  cat: "common", title: "변수와 상수",
+  tags: ["기초"],
+  basic: "변수(variable)는 값을 저장하는 이름 붙은 공간. <code>let</code>은 변경 가능, <code>const</code>는 변경 불가(상수). <code>var</code>는 레거시라 쓰지 마세요. 스코프(유효 범위) 차이도 중요합니다.",
+  easy: "변수는 이름표 붙은 상자예요. 안에 내용물을 바꿔 넣을 수 있죠(<code>let</code>). 상수는 봉인된 상자(<code>const</code>). 한번 넣으면 못 바꿔요.",
+  code: `let score = 0;      // 나중에 바뀔 수 있음\nscore = 100;         // OK\n\nconst PI = 3.14159;  // 절대 안 바뀜\nPI = 3;              // Error!`
+},
+{
+  cat: "common", title: "자료형 (Data Types)",
+  tags: ["기초"],
+  basic: "데이터의 종류를 구분하는 분류입니다. 원시형: <code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>. 참조형: <code>object</code>, <code>array</code>, <code>function</code>. TypeScript는 여기에 타입 시스템을 추가해요.",
+  easy: "서류 분류함이에요. 숫자는 숫자 서랍, 문자는 문자 서랍, 참/거짓은 O/X 서랍. 잘못된 서랍에 넣으면 나중에 꺼낼 때 혼란스럽죠.",
+},
+{
+  cat: "common", title: "함수 (Function)",
+  tags: ["기초"],
+  basic: "특정 작업을 수행하는 코드 묶음입니다. 입력(매개변수)을 받아 처리하고 결과(반환값)를 돌려줍니다. 재사용성의 기본 단위. 화살표 함수(<code>=></code>)는 <code>this</code> 바인딩이 다릅니다.",
+  easy: "자판기 버튼이에요. 동전(매개변수)을 넣고 버튼(함수 호출)을 누르면 음료(반환값)가 나옵니다. 같은 버튼을 여러 번 눌러도 같은 음료가 나오죠.",
+  code: `// 선언식\nfunction add(a, b) {\n  return a + b;\n}\n\n// 화살표 함수\nconst add = (a, b) => a + b;\n\nadd(2, 3); // 5`
+},
+{
+  cat: "common", title: "콜백 (Callback)",
+  tags: ["비동기"],
+  basic: "다른 함수에 인자로 전달되어 나중에 호출되는 함수입니다. 비동기 처리의 가장 기본적인 패턴이지만, 중첩이 깊어지면 '콜백 지옥'이 됩니다.",
+  easy: "카페에서 진동벨 받는 거예요. 주문(함수 호출)하고, 음료 나오면 진동벨이 울려서(콜백 실행) 가져가는 거죠. 기다리는 동안 다른 일 할 수 있어요.",
+  code: `// 콜백 패턴\nsetTimeout(() => {\n  console.log('3초 후 실행!');\n}, 3000);\n\n// 콜백 지옥 예시\ngetUser(id, (user) => {\n  getOrders(user, (orders) => {\n    getDetails(orders[0], (detail) => {\n      // 😱 계속 깊어짐...\n    });\n  });\n});`
+},
+{
+  cat: "common", title: "Promise",
+  tags: ["비동기"],
+  basic: "비동기 작업의 결과를 나타내는 객체입니다. <code>pending</code>(대기), <code>fulfilled</code>(성공), <code>rejected</code>(실패) 세 가지 상태를 가집니다. <code>.then()</code>, <code>.catch()</code>로 체이닝합니다.",
+  easy: "식당 예약 확인증이에요. 예약(Promise 생성) 후 '확인 중(pending)' 상태였다가, 자리가 나면 '확정(fulfilled)', 만석이면 '거절(rejected)'. 결과가 나올 때까지 다른 일 하고 있으면 됩니다.",
+  code: `const fetchUser = () => {\n  return new Promise((resolve, reject) => {\n    // 비동기 작업\n    if (성공) resolve(data);\n    else reject(error);\n  });\n};\n\nfetchUser()\n  .then(user => console.log(user))\n  .catch(err => console.error(err));`
+},
+{
+  cat: "common", title: "async/await",
+  tags: ["비동기"],
+  basic: "Promise를 더 읽기 쉽게 쓰는 문법입니다. <code>async</code> 함수 안에서 <code>await</code>을 쓰면 Promise가 처리될 때까지 기다렸다가 다음 줄로 넘어갑니다. 에러 처리는 <code>try/catch</code>로.",
+  easy: "Promise가 예약 확인증이라면, async/await은 '자리 날 때까지 여기서 기다릴게요'라고 말하는 거예요. 코드가 위에서 아래로 순서대로 읽혀서 이해하기 쉬워요.",
+  code: `async function getUser() {\n  try {\n    const res = await fetch('/api/user');\n    const user = await res.json();\n    return user;\n  } catch (err) {\n    console.error('실패:', err);\n  }\n}`
+},
+{
+  cat: "common", title: "배열 (Array)",
+  tags: ["자료구조"],
+  basic: "순서가 있는 데이터 모음입니다. 인덱스(0부터 시작)로 접근합니다. <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code> 등 고차 함수가 핵심. 불변성을 유지하려면 원본을 수정하지 말고 새 배열을 반환하세요.",
+  easy: "번호표가 붙은 사물함이에요. 0번, 1번, 2번... 순서대로 물건을 넣고, 번호로 꺼냅니다.",
+  code: `const nums = [1, 2, 3, 4, 5];\n\nnums.map(n => n * 2);      // [2, 4, 6, 8, 10]\nnums.filter(n => n > 3);   // [4, 5]\nnums.find(n => n === 3);   // 3\nnums.reduce((a, b) => a + b, 0); // 15`
+},
+{
+  cat: "common", title: "해시맵/딕셔너리 (Map/Object)",
+  tags: ["자료구조"],
+  basic: "키-값(key-value) 쌍으로 데이터를 저장합니다. 키로 O(1) 시간에 접근 가능. JS에서는 <code>Object</code>나 <code>Map</code>을 사용합니다. 캐시, 카운팅, 룩업에 자주 씁니다.",
+  easy: "사전이에요. '사과'를 찾으면 'apple'이라는 값이 바로 나옵니다. 처음부터 끝까지 넘길 필요 없이, 키(단어)만 알면 값(뜻)을 바로 찾아요.",
+  code: `const userMap = new Map();\nuserMap.set('user_1', { name: '홍길동' });\nuserMap.get('user_1'); // { name: '홍길동' }\n\n// 또는 일반 객체\nconst cache = {};\ncache['key'] = 'value';`
+},
+{
+  cat: "common", title: "스택 & 큐 (Stack & Queue)",
+  tags: ["자료구조"],
+  basic: "스택은 LIFO(후입선출, Last In First Out). 큐는 FIFO(선입선출, First In First Out). 스택: 함수 호출 스택, 뒤로가기. 큐: 작업 대기열, 메시지 큐, BFS.",
+  easy: "스택은 접시 쌓기. 마지막에 올린 접시를 먼저 꺼내요. 큐는 줄 서기. 먼저 온 사람이 먼저 들어가요.",
+},
+{
+  cat: "common", title: "시간 복잡도 (Big O)",
+  tags: ["알고리즘"],
+  basic: "알고리즘의 실행 시간이 입력 크기에 따라 얼마나 증가하는지 나타냅니다. O(1) 상수 < O(log n) 로그 < O(n) 선형 < O(n log n) < O(n²) 제곱 < O(2ⁿ) 지수",
+  easy: "배달 시간이에요. O(1)은 바로 앞 편의점, O(n)은 집집마다 택배 배달, O(n²)은 모든 집에서 모든 집으로 택배 보내기. 데이터가 많아질수록 차이가 어마어마해요.",
+},
+{
+  cat: "common", title: "Git 기초",
+  tags: ["도구"],
+  basic: "분산 버전 관리 시스템. <code>commit</code>은 저장점, <code>branch</code>는 독립 작업 공간, <code>merge</code>는 합치기, <code>pull/push</code>는 원격 동기화. <code>rebase</code>는 히스토리를 깔끔하게 정리합니다.",
+  easy: "게임 세이브 파일이에요. 중요한 순간마다 세이브(commit)하고, 다른 루트를 시도하고 싶으면 새 슬롯(branch)을 만들고, 결과가 좋으면 합치기(merge). 망하면 이전 세이브로 돌아가기(revert).",
+  code: `git checkout -b feature/login  # 브랜치 생성\ngit add .                       # 변경사항 스테이징\ngit commit -m "feat: 로그인 구현" # 커밋\ngit push origin feature/login   # 원격 푸시\ngit checkout main && git merge feature/login`
+},
+{
+  cat: "common", title: "Git Flow / 브랜치 전략",
+  tags: ["도구"],
+  basic: "<code>main</code>(프로덕션), <code>develop</code>(개발), <code>feature/*</code>(기능), <code>hotfix/*</code>(긴급수정). GitHub Flow는 더 단순: main + feature 브랜치만. PR(Pull Request)로 코드 리뷰 후 머지합니다.",
+  easy: "요리 과정이에요. 메인 주방(main)은 손님에게 나가는 요리만. 연습 주방(develop)에서 새 레시피 테스트. 각 요리사가 개인 조리대(feature branch)에서 작업 후, 맛 검수(PR 리뷰) 통과하면 메인 주방에 올려요.",
+},
+{
+  cat: "common", title: "클로저 (Closure)",
+  tags: ["JavaScript"],
+  basic: "함수가 선언될 때의 스코프(변수 환경)를 기억하는 것입니다. 내부 함수가 외부 함수의 변수에 접근할 수 있어요. 데이터 은닉, 상태 유지에 씁니다.",
+  easy: "도시락에 보온팩을 넣는 거예요. 도시락(외부 함수)을 열어도 보온팩(변수)의 온기가 남아있죠. 함수가 끝나도 그 안의 변수를 기억합니다.",
+  code: `function counter() {\n  let count = 0; // 외부 변수\n  return {\n    increment: () => ++count,\n    getCount: () => count\n  };\n}\nconst c = counter();\nc.increment(); // 1\nc.increment(); // 2\nc.getCount();  // 2`
+},
+{
+  cat: "common", title: "타입스크립트 (TypeScript)",
+  tags: ["TypeScript"],
+  basic: "JavaScript에 정적 타입 시스템을 추가한 언어입니다. 컴파일 타임에 타입 오류를 잡아줘서 버그를 미리 방지합니다. <code>interface</code>, <code>type</code>, <code>generic</code>, <code>enum</code> 등을 제공해요.",
+  easy: "레고 블록에 모양별 연결구를 만든 거예요. 네모 블록은 네모 구멍에만 들어가게. 잘못된 블록을 끼우려 하면 '안 맞아요!'라고 알려줍니다. 조립 전에 오류를 잡아요.",
+  code: `interface User {\n  id: string;\n  name: string;\n  email: string;\n  role: 'ADMIN' | 'CREW' | 'AGENCY';\n}\n\nfunction greet(user: User): string {\n  return \`안녕하세요 \${user.name}님!\`;\n}`
+},
+{
+  cat: "common", title: "제네릭 (Generic)",
+  tags: ["TypeScript"],
+  basic: "타입을 매개변수처럼 전달하는 기능입니다. 함수나 클래스를 만들 때 특정 타입에 묶이지 않고, 사용할 때 타입을 지정합니다. 재사용성과 타입 안전성을 동시에 잡아요.",
+  easy: "선물 포장 서비스예요. 어떤 물건이든 포장해줍니다. 신발을 주면 신발 상자, 시계를 주면 시계 상자로 포장. 포장(함수)은 같은데 내용물(타입)만 달라요.",
+  code: `function first<T>(arr: T[]): T | undefined {\n  return arr[0];\n}\n\nfirst<string>(['a', 'b']); // 'a' (string)\nfirst<number>([1, 2, 3]);  // 1 (number)`
+},
+{
+  cat: "common", title: "SOLID 원칙",
+  tags: ["설계"],
+  basic: "객체지향 설계의 5대 원칙. S: 단일 책임, O: 개방-폐쇄, L: 리스코프 치환, I: 인터페이스 분리, D: 의존성 역전. 유지보수 가능하고 확장 쉬운 코드를 만드는 가이드라인이에요.",
+  easy: "S: 한 사람이 한 가지 일만 해. O: 새 기능은 추가하되 기존 코드는 안 건드려. L: 대타가 들어와도 일이 돌아가야 해. I: 필요한 도구만 줘, 쓸데없는 것까지 강제하지 마. D: 상사가 세부 지시 말고 방향만 정해줘.",
+},
+{
+  cat: "common", title: "디자인 패턴 — 싱글턴 (Singleton)",
+  tags: ["설계"],
+  basic: "클래스의 인스턴스가 하나만 존재하도록 보장하는 패턴입니다. 전역 설정, DB 연결 풀, 로거 등에 사용합니다. 남용하면 테스트가 어려워지니 주의.",
+  easy: "대통령이에요. 한 나라에 한 명. 아무리 '새 대통령 만들어줘'라고 해도 이미 있는 대통령을 줍니다.",
+  code: `class Database {\n  private static instance: Database;\n  private constructor() {}\n  \n  static getInstance() {\n    if (!Database.instance) {\n      Database.instance = new Database();\n    }\n    return Database.instance;\n  }\n}`
+},
+{
+  cat: "common", title: "디자인 패턴 — 옵저버 (Observer)",
+  tags: ["설계"],
+  basic: "한 객체(Subject)의 상태가 변하면 이를 관찰하고 있는 다른 객체들(Observers)에게 자동 알림을 보내는 패턴입니다. 이벤트 시스템, 상태 관리(Redux, Zustand)의 기초가 됩니다.",
+  easy: "유튜브 구독이에요. 채널(Subject)에 영상이 올라오면 구독자(Observer) 전원에게 알림이 가죠. 구독 취소하면 알림 안 와요.",
+},
+{
+  cat: "common", title: "DRY / KISS / YAGNI",
+  tags: ["설계"],
+  basic: "DRY: Don't Repeat Yourself (반복하지 마). KISS: Keep It Simple, Stupid (단순하게). YAGNI: You Ain't Gonna Need It (필요 없으면 만들지 마). 과도한 추상화보다 적절한 단순함이 낫습니다.",
+  easy: "DRY: 같은 이야기를 매번 반복하지 마, 한 번만 말해. KISS: 심플하게 해, 괜히 복잡하게 만들지 마. YAGNI: '나중에 쓸 것 같아서'는 이유가 안 돼. 지금 필요한 것만.",
+},
+{
+  cat: "common", title: "REST API",
+  tags: ["API"],
+  basic: "HTTP 메서드로 리소스를 조작하는 API 설계 규칙입니다. GET(조회), POST(생성), PUT/PATCH(수정), DELETE(삭제). URL은 명사(리소스), 동사는 HTTP 메서드로 표현합니다.",
+  easy: "식당 메뉴판이에요. GET /메뉴 = 메뉴 보기, POST /주문 = 주문하기, PUT /주문/1 = 주문 수정, DELETE /주문/1 = 주문 취소. URL이 '무엇을', HTTP 메서드가 '어떻게'를 나타내요.",
+  code: `GET    /api/v1/users       # 유저 목록\nGET    /api/v1/users/1     # 유저 상세\nPOST   /api/v1/users       # 유저 생성\nPATCH  /api/v1/users/1     # 유저 수정\nDELETE /api/v1/users/1     # 유저 삭제`
+},
+{
+  cat: "common", title: "JSON (JavaScript Object Notation)",
+  tags: ["API"],
+  basic: "데이터를 교환하기 위한 경량 포맷입니다. 키-값 쌍으로 구성되며, 문자열, 숫자, 배열, 객체, boolean, null을 지원합니다. API 통신의 표준 포맷이에요.",
+  easy: "택배 송장이에요. 보내는 사람, 받는 사람, 내용물을 정해진 양식에 맞춰 적으면 누구든 읽을 수 있죠. 컴퓨터끼리 데이터를 주고받을 때 이 양식을 씁니다.",
+  code: `{\n  "name": "홍길동",\n  "age": 25,\n  "skills": ["TypeScript", "React"],\n  "employed": true,\n  "address": null\n}`
+},
+{
+  cat: "common", title: "HTTP 상태 코드",
+  tags: ["API"],
+  basic: "서버 응답의 결과를 숫자로 나타냅니다. 2xx: 성공 (200 OK, 201 Created). 3xx: 리다이렉트. 4xx: 클라이언트 오류 (400 Bad Request, 401 Unauthorized, 404 Not Found). 5xx: 서버 오류 (500 Internal Server Error).",
+  easy: "배달 상태 메시지예요. 200은 '배달 완료', 404는 '주소 없음', 401은 '수령인 확인 필요', 500은 '배달 사고'. 숫자만 보면 무슨 상황인지 바로 알 수 있죠.",
+},
+{
+  cat: "common", title: "환경 변수 (.env)",
+  tags: ["도구"],
+  basic: "API 키, DB 비밀번호 같은 민감한 설정값을 코드와 분리해서 관리하는 방법입니다. <code>.env</code> 파일에 저장하고, <code>.gitignore</code>에 추가해서 Git에 올리지 않습니다.",
+  easy: "금고 비밀번호를 종이에 적어 코르크 보드에 붙이지 않잖아요. 금고(코드) 밖 안전한 곳(.env)에 보관하고, 필요할 때만 꺼내 씁니다.",
+  code: `# .env\nDATABASE_URL=postgresql://localhost:5432/mydb\nJWT_SECRET=super-secret-key-123\nREDIS_URL=redis://localhost:6379\n\n# 코드에서 사용\nprocess.env.DATABASE_URL`
+},
+{
+  cat: "common", title: "정규표현식 (RegExp)",
+  tags: ["도구"],
+  basic: "문자열 패턴을 정의하는 특수 문법입니다. 검색, 치환, 유효성 검사에 사용합니다. <code>/패턴/플래그</code> 형태. 이메일, 전화번호, URL 검증 등에 필수입니다.",
+  easy: "와일드카드 검색이에요. '김*동'이라고 치면 김길동, 김철동, 김미동 다 나오죠. 정규식은 이걸 훨씬 정교하게 할 수 있는 패턴 언어예요.",
+  code: `// 이메일 검증\n/^[\\w.-]+@[\\w.-]+\\.\\w{2,}$/.test('test@mail.com') // true\n\n// 전화번호\n/^010-\\d{4}-\\d{4}$/.test('010-1234-5678') // true\n\n// 문자열 치환\n'hello world'.replace(/world/, 'JS') // 'hello JS'`
+},
+
+// ──────────────────────────────────────────
+// 프론트엔드
+// ──────────────────────────────────────────
+{
+  cat: "frontend", title: "DOM (Document Object Model)",
+  tags: ["브라우저"],
+  basic: "HTML 문서를 트리 구조의 객체로 표현한 것입니다. JavaScript로 DOM을 조작해서 화면을 동적으로 변경합니다. React는 Virtual DOM으로 실제 DOM 조작을 최소화해요.",
+  easy: "레고 설명서가 아니라 조립된 레고 자체예요. HTML이 설명서(코드)라면, DOM은 실제 조립된 모습. JS로 블록을 빼거나 추가하면 화면이 바뀌죠.",
+},
+{
+  cat: "frontend", title: "Virtual DOM",
+  tags: ["React"],
+  basic: "실제 DOM의 가벼운 사본(JavaScript 객체)입니다. 상태 변경 시 새 Virtual DOM을 만들고, 이전 것과 비교(diffing)해서 변경된 부분만 실제 DOM에 반영합니다. React의 핵심 성능 최적화 기법이에요.",
+  easy: "건축 모형(미니어처)이에요. 건물(실제 DOM)을 직접 고치면 비용이 크지만, 모형(Virtual DOM)에서 먼저 시뮬레이션하고 바뀐 부분만 실제 건물에 적용하면 효율적이죠.",
+},
+{
+  cat: "frontend", title: "컴포넌트 (Component)",
+  tags: ["React"],
+  basic: "UI를 독립적이고 재사용 가능한 조각으로 나눈 것입니다. 각 컴포넌트는 자체 상태(state)와 속성(props)을 가집니다. React에서는 함수형 컴포넌트가 표준이에요.",
+  easy: "레고 블록이에요. 버튼 블록, 카드 블록, 네비게이션 블록을 조합해서 페이지를 만듭니다. 각 블록은 독립적이라 다른 페이지에서도 재사용할 수 있죠.",
+  code: `function UserCard({ name, role }: Props) {\n  return (\n    <div className="card">\n      <h3>{name}</h3>\n      <Badge>{role}</Badge>\n    </div>\n  );\n}`
+},
+{
+  cat: "frontend", title: "Props vs State",
+  tags: ["React"],
+  basic: "Props: 부모가 자식에게 전달하는 읽기 전용 데이터. State: 컴포넌트 내부에서 관리하는 변경 가능한 데이터. State가 바뀌면 리렌더링 됩니다. <code>useState</code> 훅으로 관리해요.",
+  easy: "Props는 부모님이 정해준 이름(바꿀 수 없음). State는 내 기분(수시로 변함). 이름은 밖에서 정해주지만, 기분은 내가 스스로 바꿀 수 있죠.",
+  code: `function Counter({ initialCount }: { initialCount: number }) {\n  // initialCount = props (외부에서 받음)\n  // count = state (내부에서 관리)\n  const [count, setCount] = useState(initialCount);\n  \n  return <button onClick={() => setCount(c => c + 1)}>{count}</button>;\n}`
+},
+{
+  cat: "frontend", title: "React Hooks",
+  tags: ["React"],
+  basic: "함수형 컴포넌트에서 상태와 생명주기를 사용하게 해주는 함수들입니다. <code>useState</code>(상태), <code>useEffect</code>(사이드 이펙트), <code>useRef</code>(참조), <code>useMemo</code>(메모이제이션), <code>useCallback</code>(함수 캐싱).",
+  easy: "스마트폰 기능이에요. useState는 메모장(기억하기), useEffect는 알람(특정 시점에 실행), useRef는 즐겨찾기(값을 저장하되 화면 안 바뀜), useMemo는 계산기 기록(같은 계산 반복 안 함).",
+},
+{
+  cat: "frontend", title: "useEffect",
+  tags: ["React"],
+  basic: "컴포넌트 렌더링 후 실행되는 사이드 이펙트를 처리합니다. API 호출, 이벤트 리스너 등록, 타이머 설정 등. 의존성 배열로 실행 조건을 제어합니다. cleanup 함수로 정리해요.",
+  easy: "집에 들어오면(마운트) 불 켜고, 나갈 때(언마운트) 불 끄는 자동 센서예요. 특정 물건이 바뀔 때만(의존성) 반응하게 설정할 수도 있어요.",
+  code: `useEffect(() => {\n  // 마운트 시 실행\n  const subscription = api.subscribe();\n  \n  return () => {\n    // 언마운트 시 정리\n    subscription.unsubscribe();\n  };\n}, [dependency]); // dependency 바뀔 때만 재실행`
+},
+{
+  cat: "frontend", title: "React Query (TanStack Query)",
+  tags: ["React", "상태관리"],
+  basic: "서버 상태 관리 라이브러리입니다. API 데이터의 캐싱, 자동 리패치, 낙관적 업데이트, 무한 스크롤 등을 처리합니다. <code>useQuery</code>(조회), <code>useMutation</code>(변경)이 핵심이에요.",
+  easy: "똑똑한 비서예요. '서류 가져와' 하면 가져오고(fetch), 이미 가져온 건 캐비닛에 보관(cache), 오래되면 알아서 새로 가져오고(refetch), 네트워크 끊기면 캐비닛 것 보여줘요(stale data).",
+  code: `// 데이터 조회\nconst { data, isLoading } = useQuery({\n  queryKey: ['users'],\n  queryFn: () => api.get('/users')\n});\n\n// 데이터 변경\nconst mutation = useMutation({\n  mutationFn: (newUser) => api.post('/users', newUser),\n  onSuccess: () => queryClient.invalidateQueries(['users'])\n});`
+},
+{
+  cat: "frontend", title: "Zustand",
+  tags: ["React", "상태관리"],
+  basic: "가벼운 클라이언트 상태 관리 라이브러리입니다. Redux보다 보일러플레이트가 훨씬 적고, 직관적입니다. 스토어 하나에 상태와 액션을 함께 정의합니다.",
+  easy: "미니 냉장고예요. Redux가 대형 냉장고(복잡한 설정, 많은 부품)라면, Zustand은 원룸 미니 냉장고(간단, 필요한 것만). 작은 프로젝트에 딱이에요.",
+  code: `const useAuthStore = create((set) => ({\n  user: null,\n  token: null,\n  login: (user, token) => set({ user, token }),\n  logout: () => set({ user: null, token: null }),\n}));\n\n// 컴포넌트에서\nconst user = useAuthStore(state => state.user);`
+},
+{
+  cat: "frontend", title: "CSS Flexbox",
+  tags: ["CSS"],
+  basic: "1차원 레이아웃 모델입니다. 수평 또는 수직 방향으로 아이템을 정렬합니다. <code>display: flex</code>로 시작. <code>justify-content</code>(주축), <code>align-items</code>(교차축)이 핵심 속성이에요.",
+  easy: "빨랫줄이에요. 줄(주축)을 따라 빨래(아이템)를 하나씩 걸어요. 줄 위에서 간격을 조절하고(justify-content), 줄에서 위아래 위치를 조절합니다(align-items).",
+  code: `.container {\n  display: flex;\n  justify-content: space-between; /* 주축 정렬 */\n  align-items: center;           /* 교차축 정렬 */\n  gap: 16px;                     /* 아이템 간격 */\n  flex-wrap: wrap;               /* 줄바꿈 허용 */\n}`
+},
+{
+  cat: "frontend", title: "CSS Grid",
+  tags: ["CSS"],
+  basic: "2차원 레이아웃 모델입니다. 행(row)과 열(column)을 동시에 제어합니다. 복잡한 페이지 레이아웃에 적합해요. Flex는 1줄, Grid는 표(격자) 전체를 다룹니다.",
+  easy: "바둑판이에요. 줄과 칸을 미리 그려놓고, 각 칸에 콘텐츠를 배치합니다. Flex가 빨랫줄(1차원)이면, Grid는 바둑판(2차원).",
+  code: `.layout {\n  display: grid;\n  grid-template-columns: 250px 1fr;   /* 사이드바 + 메인 */\n  grid-template-rows: 60px 1fr 40px;  /* 헤더 + 콘텐츠 + 푸터 */\n  gap: 16px;\n  min-height: 100vh;\n}`
+},
+{
+  cat: "frontend", title: "반응형 디자인 (Responsive)",
+  tags: ["CSS"],
+  basic: "화면 크기에 따라 레이아웃이 자동으로 변하는 디자인입니다. <code>@media</code> 쿼리, 상대 단위(%, vw, rem), flex/grid로 구현합니다. 모바일 퍼스트 접근이 표준이에요.",
+  easy: "물이에요. 컵에 담으면 컵 모양, 그릇에 담으면 그릇 모양. 콘텐츠가 어떤 화면이든 그 크기에 맞게 흘러들어가도록 만드는 거예요.",
+  code: `/* 모바일 퍼스트 */\n.grid { display: grid; grid-template-columns: 1fr; }\n\n/* 태블릿 */\n@media (min-width: 768px) {\n  .grid { grid-template-columns: repeat(2, 1fr); }\n}\n\n/* 데스크톱 */\n@media (min-width: 1024px) {\n  .grid { grid-template-columns: repeat(3, 1fr); }\n}`
+},
+{
+  cat: "frontend", title: "Tailwind CSS",
+  tags: ["CSS"],
+  basic: "유틸리티 퍼스트 CSS 프레임워크입니다. 미리 정의된 클래스(<code>flex</code>, <code>p-4</code>, <code>text-lg</code>)를 조합해서 스타일링합니다. CSS 파일을 따로 만들 필요 없이 HTML에서 바로 스타일링해요.",
+  easy: "레고 색칠 스티커예요. 빨간 스티커(bg-red-500), 둥근 스티커(rounded-lg), 그림자 스티커(shadow-md)를 블록에 붙이면 끝. 매번 물감(CSS)을 직접 섞을 필요 없어요.",
+  code: `<button className="bg-blue-500 hover:bg-blue-600 text-white\n  font-bold py-2 px-4 rounded-lg shadow-md\n  transition-colors duration-200">\n  클릭하세요\n</button>`
+},
+{
+  cat: "frontend", title: "Next.js App Router",
+  tags: ["Next.js"],
+  basic: "파일 시스템 기반 라우팅입니다. <code>app/</code> 디렉토리 구조가 곧 URL 경로. <code>page.tsx</code>(페이지), <code>layout.tsx</code>(레이아웃), <code>loading.tsx</code>(로딩), <code>error.tsx</code>(에러). 서버 컴포넌트가 기본이에요.",
+  easy: "폴더 이름이 곧 주소예요. <code>app/dashboard/page.tsx</code> 만들면 <code>/dashboard</code> URL이 생깁니다. 폴더 구조 = 사이트 구조.",
+  code: `app/\n├── page.tsx              → /\n├── layout.tsx            → 공통 레이아웃\n├── (auth)/\n│   └── login/page.tsx    → /login\n└── (dashboard)/\n    ├── dashboard/page.tsx → /dashboard\n    ├── staff/page.tsx     → /staff\n    └── projects/page.tsx  → /projects`
+},
+{
+  cat: "frontend", title: "SSR vs CSR vs SSG",
+  tags: ["Next.js"],
+  basic: "CSR: 브라우저에서 JS로 렌더링 (SPA). SSR: 서버에서 HTML 생성 후 전달 (요청마다). SSG: 빌드 시 HTML 미리 생성 (정적). ISR: SSG + 주기적 재생성. Next.js는 이 모든 걸 지원해요.",
+  easy: "CSR: 식재료 배달 받아서 직접 요리(느림, 인터랙티브). SSR: 출장 셰프가 와서 요리(빠른 첫 화면). SSG: 밀키트 미리 만들어 둠(가장 빠름, 변경 어려움). ISR: 밀키트인데 매일 새로 만듦.",
+},
+{
+  cat: "frontend", title: "React Hook Form + Zod",
+  tags: ["React", "폼"],
+  basic: "React Hook Form: 비제어 컴포넌트 기반의 폼 라이브러리. 리렌더링 최소화. Zod: TypeScript 친화적 스키마 유효성 검사. 둘을 합치면 타입 안전한 폼 처리가 됩니다.",
+  easy: "Hook Form은 똑똑한 서류 양식. 모든 칸을 매번 확인하지 않고 제출할 때만 검사해서 빨라요. Zod는 자동 서류 검수기. '이메일 칸에 이메일 형식이 아니잖아!'라고 잡아줘요.",
+  code: `const schema = z.object({\n  email: z.string().email('이메일 형식이 아닙니다'),\n  password: z.string().min(8, '8자 이상 입력하세요'),\n});\n\nconst { register, handleSubmit } = useForm({\n  resolver: zodResolver(schema)\n});`
+},
+{
+  cat: "frontend", title: "웹 접근성 (a11y)",
+  tags: ["UX"],
+  basic: "장애가 있는 사용자도 웹을 이용할 수 있게 만드는 것입니다. 시맨틱 HTML, ARIA 속성, 키보드 네비게이션, 적절한 색상 대비, alt 텍스트 등을 구현합니다.",
+  easy: "건물 경사로예요. 계단만 있으면 휠체어 이용자가 못 들어오죠. 경사로(접근성)를 추가하면 모든 사람이 편하게 이용합니다. 비장애인에게도 더 편하고요.",
+},
+{
+  cat: "frontend", title: "웹 성능 최적화",
+  tags: ["성능"],
+  basic: "코드 스플리팅(lazy loading), 이미지 최적화(WebP, lazy), 번들 크기 줄이기(tree shaking), 캐싱, 메모이제이션(<code>useMemo</code>, <code>React.memo</code>). Core Web Vitals (LCP, FID, CLS) 지표를 기준으로 측정합니다.",
+  easy: "이사짐 정리예요. 필요한 것만 챙기고(tree shaking), 큰 짐은 나중에 보내고(lazy loading), 자주 쓰는 건 손닿는 곳에 두고(캐싱), 무거운 건 가볍게 포장합니다(이미지 최적화).",
+},
+{
+  cat: "frontend", title: "CORS (Cross-Origin Resource Sharing)",
+  tags: ["브라우저", "보안"],
+  basic: "브라우저가 다른 도메인의 리소스 요청을 차단하는 보안 정책입니다. 서버에서 <code>Access-Control-Allow-Origin</code> 헤더를 설정해서 허용합니다. 프론트-백 도메인이 다를 때 자주 만나요.",
+  easy: "아파트 출입증이에요. 다른 아파트(다른 도메인) 사람이 우리 아파트에 들어오려면 관리실(서버)에서 출입증(CORS 헤더)을 발급해줘야 합니다.",
+},
+{
+  cat: "frontend", title: "Axios 인터셉터",
+  tags: ["HTTP"],
+  basic: "HTTP 요청/응답을 가로채서 공통 처리를 하는 미들웨어입니다. 요청 인터셉터: JWT 토큰 자동 첨부. 응답 인터셉터: 401 에러 시 토큰 갱신, 에러 공통 처리 등.",
+  easy: "공항 보안 검색대예요. 모든 승객(요청)이 비행기 타기 전 검색대(인터셉터)를 거칩니다. 여권(토큰) 자동 확인, 위험물(에러) 감지를 일괄 처리하죠.",
+  code: `api.interceptors.request.use((config) => {\n  const token = localStorage.getItem('token');\n  if (token) config.headers.Authorization = \`Bearer \${token}\`;\n  return config;\n});\n\napi.interceptors.response.use(\n  (res) => res,\n  (err) => {\n    if (err.response?.status === 401) {\n      // 토큰 만료 → 로그아웃 처리\n    }\n    return Promise.reject(err);\n  }\n);`
+},
+
+// ──────────────────────────────────────────
+// 백엔드
+// ──────────────────────────────────────────
+{
+  cat: "backend", title: "NestJS 모듈 구조",
+  tags: ["NestJS"],
+  basic: "NestJS는 Module → Controller → Service 패턴을 따릅니다. Module: 관련 기능 묶음. Controller: HTTP 요청 처리(라우팅). Service: 비즈니스 로직. 의존성 주입(DI)으로 연결됩니다.",
+  easy: "회사 조직도예요. Module = 부서, Controller = 접수 창구(요청 받기), Service = 실무 담당자(처리하기). 고객이 창구에서 요청하면, 실무자가 처리하고 결과를 돌려줘요.",
+  code: `// Controller — 요청 받기\n@Controller('users')\nclass UserController {\n  constructor(private userService: UserService) {}\n\n  @Get()\n  findAll() { return this.userService.findAll(); }\n}\n\n// Service — 비즈니스 로직\n@Injectable()\nclass UserService {\n  constructor(private prisma: PrismaService) {}\n  findAll() { return this.prisma.user.findMany(); }\n}`
+},
+{
+  cat: "backend", title: "의존성 주입 (Dependency Injection)",
+  tags: ["NestJS", "설계"],
+  basic: "객체가 필요로 하는 의존성을 외부에서 주입해주는 패턴입니다. 직접 생성하지 않고 프레임워크가 주입합니다. 테스트 시 Mock으로 교체하기 쉬워요. NestJS의 <code>@Injectable()</code>이 대표적.",
+  easy: "레스토랑 셰프가 직접 장보러 가지 않고, 식재료 업체(프레임워크)가 알아서 배달해주는 거예요. 셰프는 요리(비즈니스 로직)에만 집중하면 됩니다.",
+},
+{
+  cat: "backend", title: "ORM (Prisma)",
+  tags: ["DB"],
+  basic: "Object-Relational Mapping. SQL 대신 프로그래밍 언어의 객체로 DB를 조작합니다. Prisma는 스키마 파일에서 모델을 정의하고, 타입 안전한 쿼리를 자동 생성합니다.",
+  easy: "통역사예요. 한국어(JavaScript/TypeScript)로 말하면 SQL(외국어)로 번역해서 DB에 전달합니다. 직접 SQL 쓸 줄 몰라도 DB와 대화할 수 있어요.",
+  code: `// schema.prisma\nmodel User {\n  id    String @id @default(cuid())\n  email String @unique\n  name  String\n  role  Role   @default(CREW)\n}\n\n// 쿼리\nconst users = await prisma.user.findMany({\n  where: { role: 'AGENCY' },\n  include: { projects: true }\n});`
+},
+{
+  cat: "backend", title: "마이그레이션 (Migration)",
+  tags: ["DB"],
+  basic: "DB 스키마 변경 이력을 코드로 관리하는 시스템입니다. 테이블 추가, 컬럼 변경 등을 버전 관리합니다. <code>prisma migrate</code>로 적용하고, 롤백도 가능해요.",
+  easy: "리모델링 설계도예요. 집(DB)을 고칠 때마다 도면(마이그레이션)을 남겨둡니다. 나중에 '언제, 무엇을 고쳤는지' 추적하고, 원래대로 되돌릴 수 있어요.",
+  code: `# 마이그레이션 생성\nnpx prisma migrate dev --name add_phone_field\n\n# 프로덕션 적용\nnpx prisma migrate deploy\n\n# 상태 확인\nnpx prisma migrate status`
+},
+{
+  cat: "backend", title: "JWT (JSON Web Token)",
+  tags: ["인증"],
+  basic: "사용자 인증 정보를 담은 토큰입니다. Header(알고리즘) + Payload(사용자 정보) + Signature(서명) 3파트로 구성. 서버가 세션을 저장하지 않아도(Stateless) 인증을 확인할 수 있어요.",
+  easy: "놀이공원 자유이용권이에요. 팔찌(토큰)를 한 번 받으면, 매 놀이기구마다(API 요청) 매표소에 갈 필요 없이 팔찌만 보여주면 탈 수 있죠. 팔찌에 이름, 등급 정보가 적혀 있어요.",
+  code: `// 토큰 생성\nconst token = jwt.sign(\n  { userId: user.id, role: user.role },\n  process.env.JWT_SECRET,\n  { expiresIn: '24h' }\n);\n\n// 토큰 검증 (Guard)\n@UseGuards(JwtAuthGuard)\n@Get('profile')\ngetProfile(@CurrentUser() user) {\n  return user;\n}`
+},
+{
+  cat: "backend", title: "미들웨어 (Middleware)",
+  tags: ["NestJS"],
+  basic: "요청(Request)과 응답(Response) 사이에서 실행되는 함수입니다. 인증 확인, 로깅, CORS, 에러 처리 등 공통 로직을 처리합니다. NestJS에서는 Guard, Interceptor, Pipe, Filter로 세분화됩니다.",
+  easy: "택배 분류 센터예요. 택배(요청)가 집(컨트롤러)에 도착하기 전에, 분류 센터에서 크기 확인(유효성), 주소 확인(인증), 기록(로깅)을 거칩니다.",
+},
+{
+  cat: "backend", title: "Guard (인증/인가)",
+  tags: ["NestJS"],
+  basic: "요청이 컨트롤러에 도달하기 전에 인증/인가를 검사하는 계층입니다. <code>@UseGuards(JwtAuthGuard)</code>로 JWT 검증, <code>RolesGuard</code>로 역할 기반 접근 제어를 합니다.",
+  easy: "클럽 바운서(경비)예요. 입장 전에 신분증(JWT) 확인하고, VIP 구역은 VIP 팔찌(역할)가 있는 사람만 들여보내요.",
+  code: `// 역할 기반 접근 제어\n@UseGuards(JwtAuthGuard, RolesGuard)\n@Roles('ADMIN', 'AGENCY')\n@Delete(':id')\nremoveUser(@Param('id') id: string) {\n  return this.userService.remove(id);\n}`
+},
+{
+  cat: "backend", title: "DTO (Data Transfer Object)",
+  tags: ["NestJS"],
+  basic: "계층 간 데이터 전달용 객체입니다. 입력 데이터의 형태와 유효성 규칙을 정의합니다. <code>class-validator</code> 데코레이터로 자동 검증하고, Swagger 문서도 자동 생성돼요.",
+  easy: "주문서 양식이에요. '이름(필수)', '전화번호(숫자만)', '주소(최소 10자)' 같은 규칙이 적힌 양식. 규칙에 안 맞게 쓰면 접수가 안 되죠.",
+  code: `class CreateUserDto {\n  @IsString()\n  @IsNotEmpty()\n  name: string;\n\n  @IsEmail()\n  email: string;\n\n  @IsEnum(Role)\n  role: Role;\n\n  @IsOptional()\n  @MinLength(8)\n  password?: string;\n}`
+},
+{
+  cat: "backend", title: "Redis 캐싱",
+  tags: ["캐시", "성능"],
+  basic: "인메모리 키-값 저장소입니다. DB보다 10~100배 빠릅니다. 세션 저장, API 응답 캐싱, Rate Limiting, 실시간 순위 등에 사용합니다. TTL(만료 시간)을 설정해서 자동 삭제합니다.",
+  easy: "칠판 메모예요. 자주 물어보는 질문의 답을 칠판(Redis)에 적어두면, 매번 책(DB)을 뒤질 필요 없이 칠판만 보면 됩니다. 오래된 메모는 지우개로 지워요(TTL).",
+  code: `// 캐시에 저장 (60초 TTL)\nawait redis.set('user:123', JSON.stringify(user), 'EX', 60);\n\n// 캐시에서 조회\nconst cached = await redis.get('user:123');\nif (cached) return JSON.parse(cached);\n\n// 없으면 DB에서 조회\nconst user = await prisma.user.findUnique({ where: { id } });`
+},
+{
+  cat: "backend", title: "WebSocket / Socket.io",
+  tags: ["실시간"],
+  basic: "서버와 클라이언트 간 양방향 실시간 통신입니다. HTTP는 요청-응답(단방향)이지만, WebSocket은 연결을 유지하면서 양쪽에서 자유롭게 데이터를 보냅니다. 채팅, 알림, 실시간 업데이트에 사용해요.",
+  easy: "전화 통화예요. HTTP가 편지(보내고 답장 기다리기)라면, WebSocket은 전화(연결되면 양쪽 다 자유롭게 말하기). 채팅이나 실시간 알림은 전화처럼 계속 연결돼 있어야 해요.",
+  code: `// NestJS Gateway\n@WebSocketGateway()\nclass ChatGateway {\n  @SubscribeMessage('message')\n  handleMessage(client, payload) {\n    this.server.to(payload.room).emit('message', payload);\n  }\n}`
+},
+{
+  cat: "backend", title: "N+1 문제",
+  tags: ["DB", "성능"],
+  basic: "연관 데이터를 조회할 때, 부모 1번 + 자식 N번 = N+1번 쿼리가 발생하는 문제입니다. Prisma의 <code>include</code>, SQL의 <code>JOIN</code>으로 해결합니다. 성능에 큰 영향을 미쳐요.",
+  easy: "반 학생 30명의 부모님 연락처를 알고 싶을 때, 학생 목록 1번 + 각 학생의 부모님 정보 30번 = 31번 물어보는 거예요. 처음부터 '학생과 부모님 정보 같이 주세요' 하면 1번에 끝납니다.",
+  code: `// ❌ N+1 문제\nconst users = await prisma.user.findMany();\nfor (const user of users) {\n  const orders = await prisma.order.findMany({\n    where: { userId: user.id }\n  });\n}\n\n// ✅ include로 해결 (1번 쿼리)\nconst users = await prisma.user.findMany({\n  include: { orders: true }\n});`
+},
+{
+  cat: "backend", title: "트랜잭션 (Transaction)",
+  tags: ["DB"],
+  basic: "여러 DB 작업을 하나의 단위로 묶는 것입니다. 모두 성공하면 커밋, 하나라도 실패하면 전체 롤백. 데이터 일관성을 보장합니다. ACID(원자성, 일관성, 고립성, 지속성) 속성을 따릅니다.",
+  easy: "은행 송금이에요. A 계좌에서 빼고 B 계좌에 넣기. 이 두 작업 중 하나만 되면 안 되잖아요. 둘 다 성공하거나, 둘 다 취소하거나. 그게 트랜잭션이에요.",
+  code: `await prisma.$transaction(async (tx) => {\n  // 1. 보내는 사람 잔액 차감\n  await tx.account.update({\n    where: { id: senderId },\n    data: { balance: { decrement: amount } }\n  });\n  // 2. 받는 사람 잔액 증가\n  await tx.account.update({\n    where: { id: receiverId },\n    data: { balance: { increment: amount } }\n  });\n  // 하나라도 실패하면 전체 롤백!\n});`
+},
+{
+  cat: "backend", title: "인덱스 (Index)",
+  tags: ["DB", "성능"],
+  basic: "DB 테이블의 검색 속도를 높이는 자료 구조입니다. B-Tree, Hash 등이 있어요. WHERE 절, JOIN, ORDER BY에 사용하는 컬럼에 인덱스를 걸어야 합니다. 단, 쓰기 성능은 약간 떨어집니다.",
+  easy: "책 맨 뒤 색인(찾아보기)이에요. '인증'이 몇 페이지에 있는지 색인 없이 찾으려면 처음부터 넘겨야 하지만, 색인이 있으면 바로 '45페이지'라고 찾을 수 있죠.",
+  code: `// Prisma 스키마에서 인덱스\nmodel User {\n  id    String @id @default(cuid())\n  email String @unique          // 자동 인덱스\n  name  String\n  role  Role\n  \n  @@index([role])               // role로 검색 최적화\n  @@index([name, role])         // 복합 인덱스\n}`
+},
+{
+  cat: "backend", title: "Rate Limiting (요청 제한)",
+  tags: ["보안", "NestJS"],
+  basic: "일정 시간 내 API 요청 횟수를 제한하는 기법입니다. DDoS 공격 방어, 서버 과부하 방지, 비용 관리에 필수입니다. NestJS의 <code>@nestjs/throttler</code>로 간단히 구현합니다.",
+  easy: "뷔페 리필 제한이에요. 10분에 3번까지만 리필 가능. 악의적으로 음식을 쓸어가는 것(DDoS)을 막고, 모든 손님이 공평하게 먹을 수 있게 합니다.",
+},
+{
+  cat: "backend", title: "Swagger / API 문서화",
+  tags: ["NestJS", "도구"],
+  basic: "API 엔드포인트를 자동으로 문서화하는 도구입니다. NestJS의 <code>@nestjs/swagger</code>로 데코레이터를 추가하면 <code>/docs</code>에서 인터랙티브 API 문서를 볼 수 있어요. 프론트엔드 개발자와 소통할 때 필수.",
+  easy: "식당 메뉴판이에요. 메뉴 이름, 가격, 재료, 알레르기 정보가 다 적혀있어서 주문할 때 '이거 뭐에요?'라고 물어볼 필요 없죠. API를 쓰는 사람(프론트엔드)에게 이런 메뉴판을 줍니다.",
+},
+
+// ──────────────────────────────────────────
+// 인프라
+// ──────────────────────────────────────────
+{
+  cat: "infra", title: "컨테이너 / Docker",
+  tags: ["DevOps"],
+  basic: "앱 실행에 필요한 코드, 라이브러리, 설정을 하나의 패키지(이미지)로 묶어서, 어떤 환경에서든 동일하게 실행되도록 해줍니다. '내 컴에서는 되는데?'를 해결하는 기술이에요.",
+  easy: "도시락 통이에요. 밥, 반찬, 젓가락을 한 통에 담아가면 어디서든 똑같이 먹을 수 있죠. 주방 환경이 달라도 상관없어요.",
+  code: `# Dockerfile\nFROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --production\nCOPY . .\nEXPOSE 3001\nCMD ["node", "dist/main.js"]\n\n# 실행\ndocker build -t allcrew-backend .\ndocker run -p 3001:3001 allcrew-backend`
+},
+{
+  cat: "infra", title: "Docker Compose",
+  tags: ["DevOps"],
+  basic: "여러 컨테이너를 한 번에 정의하고 실행하는 도구입니다. 앱 + DB + Redis 같은 멀티 컨테이너 환경을 <code>docker-compose.yml</code> 하나로 관리합니다.",
+  easy: "밀키트 세트예요. 도시락 하나(Docker)가 아니라, 메인 요리 + 반찬 + 디저트를 한 세트로 묶어서 한 번에 주문하고 한 번에 받습니다.",
+  code: `# docker-compose.yml\nservices:\n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_DB: allcrew\n    ports: ["5432:5432"]\n  \n  redis:\n    image: redis:7-alpine\n    ports: ["6379:6379"]\n  \n  backend:\n    build: ./backend\n    depends_on: [db, redis]\n    ports: ["3001:3001"]`
+},
+{
+  cat: "infra", title: "로드밸런싱",
+  tags: ["DevOps"],
+  basic: "들어오는 요청(트래픽)을 여러 서버에 골고루 나눠주는 기술입니다. 한 서버에 몰리면 느려지거나 죽으니까요. Nginx, AWS ALB 등이 있습니다.",
+  easy: "마트 계산대 안내 직원이에요. 손님이 몰리면 '3번 계산대로 가세요, 5번이 비었어요'라고 분산시켜주죠.",
+},
+{
+  cat: "infra", title: "캐싱 전략",
+  tags: ["성능"],
+  basic: "자주 조회하는 데이터를 메모리(Redis, Memcached)에 미리 저장해두고 빠르게 꺼내 쓰는 기법입니다. Cache-Aside, Write-Through, Write-Behind 패턴이 있어요. TTL로 만료 관리.",
+  easy: "자주 보는 전화번호를 폰 즐겨찾기에 넣는 거예요. 매번 연락처 전체를 스크롤하지 않아도 바로 찾을 수 있죠.",
+},
+{
+  cat: "infra", title: "CDN (Content Delivery Network)",
+  tags: ["성능"],
+  basic: "이미지, JS, CSS 같은 정적 파일을 전 세계 여러 서버(엣지)에 복사해두고, 사용자와 가장 가까운 서버에서 전달합니다. CloudFront, Cloudflare가 대표적이에요.",
+  easy: "글로벌 편의점 체인이에요. 서울에서 미국 본사 창고까지 가서 물건 사올 필요 없이, 동네 편의점에 같은 물건이 있으니 바로 사면 돼요.",
+},
+{
+  cat: "infra", title: "CI/CD",
+  tags: ["DevOps"],
+  basic: "CI: Continuous Integration. 코드를 합칠 때마다 자동 빌드+테스트. CD: Continuous Deployment. 테스트 통과하면 자동 배포. GitHub Actions, GitLab CI, Jenkins가 대표적이에요.",
+  easy: "공장 자동화 라인이에요. 부품(코드) 넣으면 자동으로 조립(빌드), 검수(테스트), 출하(배포)까지. 사람이 매번 수동으로 할 필요 없어요.",
+  code: `# .github/workflows/deploy.yml\nname: Deploy\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: npm ci\n      - run: npm test\n      - run: npm run build\n      - run: ./deploy.sh`
+},
+{
+  cat: "infra", title: "환경 분리 (Dev/Staging/Prod)",
+  tags: ["DevOps"],
+  basic: "개발(Dev), 스테이징(Staging), 프로덕션(Prod) 환경을 분리합니다. 각 환경마다 DB, 설정, 도메인이 다릅니다. 실수로 프로덕션 데이터를 건드리는 것을 방지합니다.",
+  easy: "요리 연습(Dev) → 시식회(Staging) → 실제 영업(Prod). 연습용 주방에서는 마음껏 실험하고, 시식회에서 최종 확인, 통과하면 실제 손님에게 서빙합니다.",
+},
+{
+  cat: "infra", title: "Nginx (리버스 프록시)",
+  tags: ["DevOps"],
+  basic: "클라이언트 요청을 받아 백엔드 서버로 전달하는 리버스 프록시입니다. SSL 종료, 정적 파일 서빙, 로드밸런싱, gzip 압축 등을 처리합니다. Node.js 앱 앞에 두는 것이 일반적이에요.",
+  easy: "호텔 프론트 데스크예요. 손님(요청)이 직접 객실(서버)을 찾아가지 않고, 프론트(Nginx)에서 안내합니다. 짐 보관(캐싱), 보안 확인(SSL) 등도 프론트에서 처리해요.",
+},
+{
+  cat: "infra", title: "AWS 기초 서비스",
+  tags: ["클라우드"],
+  basic: "EC2: 가상 서버. S3: 파일 저장소. RDS: 관리형 DB. CloudFront: CDN. Lambda: 서버리스 함수. ALB: 로드밸런서. IAM: 권한 관리. Route53: DNS. 이 조합이면 대부분의 서비스를 운영할 수 있어요.",
+  easy: "아마존 건물 임대업이에요. EC2는 사무실 임대, S3는 창고, RDS는 회의실(정리된 데이터 보관), Lambda는 콜센터(필요할 때만 직원 투입), CloudFront는 지방 분점.",
+},
+{
+  cat: "infra", title: "서버리스 (Serverless / Lambda)",
+  tags: ["클라우드"],
+  basic: "서버 관리 없이 코드만 배포하면 자동으로 실행되는 모델입니다. 요청이 올 때만 실행되고, 안 쓰면 비용 0원. AWS Lambda, Vercel Functions가 대표적. Cold Start 이슈가 있어요.",
+  easy: "콜택시예요. 자가용(서버)을 사서 유지비 내는 대신, 필요할 때만 택시(Lambda)를 부릅니다. 안 타면 돈 안 들어요. 단, 호출하면 약간 기다려야 해요(Cold Start).",
+},
+{
+  cat: "infra", title: "HTTPS / SSL/TLS",
+  tags: ["보안"],
+  basic: "데이터를 암호화해서 전송하는 프로토콜입니다. 클라이언트-서버 간 통신을 제3자가 엿볼 수 없게 합니다. Let's Encrypt로 무료 인증서 발급 가능. 모든 웹사이트의 필수 요소예요.",
+  easy: "편지를 금고에 넣어 보내는 거예요. HTTP는 엽서(누구나 읽을 수 있음), HTTPS는 금고(열쇠 있는 사람만 읽음). 비밀번호, 카드 번호 같은 민감한 정보는 반드시 금고로 보내야 해요.",
+},
+
+// ──────────────────────────────────────────
+// CS 기초
+// ──────────────────────────────────────────
+{
+  cat: "cs", title: "프로세스 vs 스레드",
+  tags: ["OS"],
+  basic: "프로세스: 실행 중인 프로그램의 독립 단위. 자체 메모리 공간을 가짐. 스레드: 프로세스 안의 실행 단위. 메모리를 공유. Node.js는 싱글 스레드 + 이벤트 루프 모델입니다.",
+  easy: "프로세스는 공장. 스레드는 공장 안의 작업자. 공장마다 독립된 시설(메모리)이 있지만, 같은 공장 안 작업자들은 시설을 공유해요.",
+},
+{
+  cat: "cs", title: "이벤트 루프 (Event Loop)",
+  tags: ["JavaScript", "Node.js"],
+  basic: "Node.js의 비동기 처리 메커니즘입니다. 싱글 스레드지만, I/O 작업을 논블로킹으로 처리합니다. 콜 스택 → 마이크로태스크 큐(Promise) → 매크로태스크 큐(setTimeout) 순서로 실행됩니다.",
+  easy: "혼자 일하는 카페 알바생이에요. 주문 받고(콜 스택), 커피 내리는 동안(비동기 I/O) 다음 주문을 받고, 커피 완성되면 알림(콜백)이 와서 전달합니다. 한 명이지만 기다리지 않아서 빨라요.",
+},
+{
+  cat: "cs", title: "TCP vs UDP",
+  tags: ["네트워크"],
+  basic: "TCP: 연결 지향, 신뢰성 보장, 순서 보장 (HTTP, 이메일). UDP: 비연결, 빠르지만 신뢰성 없음 (실시간 스트리밍, 게임). TCP는 3-way handshake로 연결을 확립합니다.",
+  easy: "TCP는 등기우편. 배달 확인되고, 순서대로 도착하고, 분실되면 다시 보냄. UDP는 전단지 뿌리기. 빠르지만 받았는지 확인 안 함. 실시간 게임이나 영상통화는 약간 유실돼도 빠른 게 중요해서 UDP를 써요.",
+},
+{
+  cat: "cs", title: "DNS (Domain Name System)",
+  tags: ["네트워크"],
+  basic: "도메인 이름(google.com)을 IP 주소(142.250.196.14)로 변환하는 시스템입니다. 브라우저가 서버를 찾을 때 가장 먼저 거치는 단계예요. 캐싱으로 속도를 높입니다.",
+  easy: "전화번호부예요. '홍길동'이라는 이름(도메인)으로 전화번호(IP 주소)를 찾아줍니다. 매번 전화번호를 외울 필요 없이 이름만 기억하면 돼요.",
+},
+{
+  cat: "cs", title: "해시 (Hash)",
+  tags: ["보안", "자료구조"],
+  basic: "임의 크기의 데이터를 고정 크기의 값으로 변환하는 함수입니다. 단방향(원본 복구 불가), 충돌 최소화. 비밀번호 저장(bcrypt), 데이터 무결성 검증, 해시맵에 사용됩니다.",
+  easy: "고기 분쇄기예요. 고기(원본)를 넣으면 다진 고기(해시)가 나옵니다. 다진 고기를 보고 원래 고기 모양을 알 수 없죠(단방향). 비밀번호를 이렇게 저장해서 해킹 당해도 원본을 알 수 없게 해요.",
+},
+{
+  cat: "cs", title: "SQL 기초",
+  tags: ["DB"],
+  basic: "데이터베이스를 조작하는 언어입니다. <code>SELECT</code>(조회), <code>INSERT</code>(삽입), <code>UPDATE</code>(수정), <code>DELETE</code>(삭제). <code>JOIN</code>으로 테이블 연결, <code>WHERE</code>로 조건 필터링, <code>GROUP BY</code>로 그룹화.",
+  easy: "엑셀 수식의 프로 버전이에요. '서울 사는 20대 남성만 보여줘(WHERE)', '나이순 정렬(ORDER BY)', '지역별 평균 나이(GROUP BY)' 같은 명령을 한 줄로 할 수 있어요.",
+  code: `-- 기본 조회\nSELECT name, email FROM users WHERE role = 'CREW';\n\n-- 조인\nSELECT u.name, p.title\nFROM users u\nJOIN projects p ON u.id = p.owner_id;\n\n-- 집계\nSELECT role, COUNT(*) as count\nFROM users\nGROUP BY role;`
+},
+{
+  cat: "cs", title: "NoSQL vs SQL",
+  tags: ["DB"],
+  basic: "SQL(관계형): 테이블, 스키마, JOIN. PostgreSQL, MySQL. 정형 데이터, 트랜잭션에 강함. NoSQL(비관계형): 문서(MongoDB), 키-값(Redis), 그래프(Neo4j). 유연한 스키마, 수평 확장에 강함.",
+  easy: "SQL은 엑셀 스프레드시트. 행과 열이 딱 정해져 있음. NoSQL은 포스트잇. 각 장마다 형식이 달라도 되고, 자유롭게 붙였다 뗐다 할 수 있어요. 용도에 따라 선택하면 됩니다.",
+},
+{
+  cat: "cs", title: "OAuth 2.0",
+  tags: ["인증", "보안"],
+  basic: "제3자 앱에 비밀번호를 주지 않고도 인증/인가를 처리하는 프로토콜입니다. '카카오로 로그인' 같은 소셜 로그인의 기반. Authorization Code, Access Token, Refresh Token으로 구성됩니다.",
+  easy: "호텔 발렛 키예요. 차 주인(사용자)이 발렛(앱)에게 진짜 키(비밀번호) 대신 시동만 걸 수 있는 발렛 키(토큰)를 줍니다. 트렁크나 글로브박스는 못 열어요(제한된 권한).",
+},
+{
+  cat: "cs", title: "XSS / CSRF / SQL Injection",
+  tags: ["보안"],
+  basic: "XSS: 악성 스크립트 삽입 공격. CSRF: 사용자 모르게 요청 위조. SQL Injection: SQL 쿼리 조작. React는 XSS 자동 방어, Prisma는 SQL Injection 자동 방어, CSRF 토큰으로 CSRF 방어합니다.",
+  easy: "XSS: 누가 우리 게시판에 몰래 함정(스크립트)을 설치. CSRF: 내 이름으로 내가 모르는 편지(요청)를 보내게 만듦. SQL Injection: DB 관리자에게 거짓 명령어를 속여서 전달.",
+},
+{
+  cat: "cs", title: "메모리 구조 (Stack vs Heap)",
+  tags: ["OS"],
+  basic: "Stack: 함수 호출, 지역 변수 저장. 자동 관리, LIFO. 크기 제한 있음. Heap: 동적 할당 메모리. 객체, 배열 저장. GC(가비지 컬렉터)가 관리. JS에서 원시값은 스택, 참조값은 힙에 저장.",
+  easy: "Stack은 책상 위 서류 더미. 위에서부터 처리하고 자동으로 치워짐. Heap은 창고. 필요한 물건을 넣었다 뺐다 하는데, 정리 안 하면 꽉 참(메모리 누수). 청소부(GC)가 안 쓰는 것 치워줘요.",
+},
+{
+  cat: "cs", title: "디자인 패턴 — MVC",
+  tags: ["설계"],
+  basic: "Model(데이터/로직) + View(화면) + Controller(중재자). 관심사를 분리하는 아키텍처 패턴입니다. NestJS는 MVC 변형(Module-Controller-Service), React는 View 레이어만 담당해요.",
+  easy: "식당이에요. Model = 주방(요리, 재료 관리). View = 홀(손님이 보는 화면). Controller = 웨이터(주문 받고, 주방에 전달하고, 음식 가져다주기). 각자 역할이 분명해요.",
+},
+];
+
+// ============================================================
+// CATEGORY CONFIG
+// ============================================================
+const CATS = {
+  common:   { name: '공통', icon: '📦', color: 'var(--accent)', bg: 'var(--accent-dim)' },
+  frontend: { name: '프론트엔드', icon: '🎨', color: 'var(--green)', bg: 'var(--green-dim)' },
+  backend:  { name: '백엔드', icon: '⚙️', color: 'var(--orange)', bg: 'var(--orange-dim)' },
+  infra:    { name: '인프라', icon: '☁️', color: 'var(--purple)', bg: 'var(--purple-dim)' },
+  cs:       { name: 'CS 기초', icon: '🧠', color: 'var(--pink)', bg: 'var(--pink-dim)' },
+};
+
+// ============================================================
+// GAMIFICATION — LEVELS & ACHIEVEMENTS
+// ============================================================
+const LEVELS = [
+  { name: 'Newbie', min: 0, color: '#666' },
+  { name: 'Learner', min: 50, color: '#34d399' },
+  { name: 'Coder', min: 150, color: '#3A89FF' },
+  { name: 'Developer', min: 350, color: '#a78bfa' },
+  { name: 'Engineer', min: 600, color: '#fb923c' },
+  { name: 'Architect', min: 1000, color: '#f472b6' },
+  { name: 'Master', min: 1500, color: '#fbbf24' },
+  { name: 'Legend', min: 2500, color: '#f87171' },
+];
+
+const ACHIEVEMENTS = [
+  { id: 'first_read', icon: '📖', name: '첫 걸음', desc: '첫 번째 개념 읽기', check: s => s.readItems.length >= 1 },
+  { id: 'read_10', icon: '📚', name: '학습러', desc: '10개 개념 읽기', check: s => s.readItems.length >= 10 },
+  { id: 'read_25', icon: '🎓', name: '반 정복', desc: '25개 개념 읽기', check: s => s.readItems.length >= 25 },
+  { id: 'read_all', icon: '👑', name: '전부 읽기', desc: '모든 개념 읽기', check: s => s.readItems.length >= DATA.length },
+  { id: 'bookmark_5', icon: '⭐', name: '컬렉터', desc: '5개 북마크', check: s => s.bookmarks.length >= 5 },
+  { id: 'cat_common', icon: '📦', name: '공통 마스터', desc: '공통 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'common' || s.readItems.includes(i)) },
+  { id: 'cat_frontend', icon: '🎨', name: 'FE 마스터', desc: '프론트 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'frontend' || s.readItems.includes(i)) },
+  { id: 'cat_backend', icon: '⚙️', name: 'BE 마스터', desc: '백엔드 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'backend' || s.readItems.includes(i)) },
+  { id: 'cat_infra', icon: '☁️', name: '인프라 마스터', desc: '인프라 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'infra' || s.readItems.includes(i)) },
+  { id: 'cat_cs', icon: '🧠', name: 'CS 마스터', desc: 'CS 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'cs' || s.readItems.includes(i)) },
+  { id: 'streak_3', icon: '🔥', name: '3일 연속', desc: '3일 연속 학습', check: s => s.streak >= 3 },
+  { id: 'streak_7', icon: '💎', name: '7일 연속', desc: '7일 연속 학습', check: s => s.streak >= 7 },
+  { id: 'daily_5', icon: '🏃', name: '하루 5개', desc: '하루에 5개 읽기', check: s => s.todayCount >= 5 },
+  { id: 'night_owl', icon: '🦉', name: '야행성', desc: '밤 11시 이후 학습', check: s => new Date().getHours() >= 23 && s.todayCount > 0 },
+  { id: 'early_bird', icon: '🌅', name: '얼리버드', desc: '아침 7시 전 학습', check: s => new Date().getHours() < 7 && s.todayCount > 0 },
+  { id: 'random_3', icon: '🎲', name: '랜덤 탐험가', desc: '랜덤 모드 3번 사용', check: s => s.randomUses >= 3 },
+];
+
+const DAILY_GOAL = 5;
+
+// ============================================================
+// APP STATE
+// ============================================================
+let currentTab = 'all';
+let currentView = 'all';
+let searchQuery = '';
+let openCards = new Set();
+
+// Persistent state
+function loadState() {
+  return {
+    bookmarks: JSON.parse(localStorage.getItem('dn-bookmarks') || '[]'),
+    readItems: JSON.parse(localStorage.getItem('dn-read') || '[]'),
+    xp: parseInt(localStorage.getItem('dn-xp') || '0'),
+    achievements: JSON.parse(localStorage.getItem('dn-achievements') || '[]'),
+    streak: parseInt(localStorage.getItem('dn-streak') || '0'),
+    lastDate: localStorage.getItem('dn-last-date') || '',
+    todayReads: JSON.parse(localStorage.getItem('dn-today-reads') || '[]'),
+    randomUses: parseInt(localStorage.getItem('dn-random-uses') || '0'),
+  };
+}
+
+function saveState(state) {
+  localStorage.setItem('dn-bookmarks', JSON.stringify(state.bookmarks));
+  localStorage.setItem('dn-read', JSON.stringify(state.readItems));
+  localStorage.setItem('dn-xp', state.xp.toString());
+  localStorage.setItem('dn-achievements', JSON.stringify(state.achievements));
+  localStorage.setItem('dn-streak', state.streak.toString());
+  localStorage.setItem('dn-last-date', state.lastDate);
+  localStorage.setItem('dn-today-reads', JSON.stringify(state.todayReads));
+  localStorage.setItem('dn-random-uses', state.randomUses.toString());
+}
+
+let state = loadState();
+
+// Migrate old localStorage keys
+(function migrate() {
+  const oldBookmarks = localStorage.getItem('dev-notes-bookmarks');
+  const oldRead = localStorage.getItem('dev-notes-read');
+  if (oldBookmarks && !state.bookmarks.length) {
+    state.bookmarks = JSON.parse(oldBookmarks);
+  }
+  if (oldRead && !state.readItems.length) {
+    state.readItems = JSON.parse(oldRead);
+    state.xp = state.readItems.length * 10;
+  }
+  if (oldBookmarks || oldRead) {
+    saveState(state);
+    localStorage.removeItem('dev-notes-bookmarks');
+    localStorage.removeItem('dev-notes-read');
+  }
+})();
+
+// Update streak on load
+(function updateStreak() {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (state.lastDate !== today) {
+    if (state.lastDate === yesterday) {
+      // streak continues, will increment when they read today
+    } else if (state.lastDate && state.lastDate !== today) {
+      state.streak = 0; // streak broken
+    }
+    state.todayReads = [];
+    saveState(state);
+  }
+})();
+
+// Computed
+function getTodayCount() { return state.todayReads.length; }
+function getLevel() {
+  let lvl = LEVELS[0];
+  for (const l of LEVELS) {
+    if (state.xp >= l.min) lvl = l;
+  }
+  return lvl;
+}
+function getLevelIdx() { return LEVELS.indexOf(getLevel()); }
+function getNextLevel() { return LEVELS[getLevelIdx() + 1] || null; }
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimeout;
+function showToast(icon, title, sub, xp) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastSub').textContent = sub;
+  document.getElementById('toastXp').textContent = xp ? `+${xp} XP` : '';
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ============================================================
+// XP & ACHIEVEMENTS
+// ============================================================
+function addXP(amount, reason) {
+  const oldLevel = getLevelIdx();
+  state.xp += amount;
+  saveState(state);
+  const newLevel = getLevelIdx();
+  if (newLevel > oldLevel) {
+    const lvl = getLevel();
+    setTimeout(() => showToast('🎉', `레벨 업!`, `${lvl.name} 달성`, amount), 300);
+  }
+}
+
+function checkAchievements() {
+  const ctx = {
+    readItems: state.readItems,
+    bookmarks: state.bookmarks,
+    streak: state.streak,
+    todayCount: getTodayCount(),
+    randomUses: state.randomUses,
+  };
+  for (const a of ACHIEVEMENTS) {
+    if (!state.achievements.includes(a.id) && a.check(ctx)) {
+      state.achievements.push(a.id);
+      addXP(30, a.name);
+      setTimeout(() => showToast(a.icon, '업적 달성!', a.name, 30), 500);
+    }
+  }
+  saveState(state);
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function getFilteredData() {
+  let items = DATA.map((d, i) => ({ ...d, _i: i }));
+
+  if (currentView === 'bookmarks') {
+    items = items.filter(d => state.bookmarks.includes(d._i));
+  } else if (currentView === 'random') {
+    const shuffled = [...items].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5);
+  } else if (currentView === 'achievements') {
+    return []; // handled separately
+  }
+
+  if (currentTab !== 'all') {
+    items = items.filter(d => d.cat === currentTab);
+  }
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    items = items.filter(d =>
+      d.title.toLowerCase().includes(q) ||
+      d.basic.toLowerCase().includes(q) ||
+      d.easy.toLowerCase().includes(q) ||
+      (d.tags && d.tags.some(t => t.toLowerCase().includes(q)))
+    );
+  }
+
+  return items;
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+function renderLevelBar() {
+  const lvl = getLevel();
+  const next = getNextLevel();
+  const xpInLevel = state.xp - lvl.min;
+  const xpNeeded = next ? (next.min - lvl.min) : 1;
+  const pct = next ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
+  const lvlNum = getLevelIdx() + 1;
+
+  document.getElementById('levelBar').innerHTML = `
+    <div class="level-badge" style="background:${lvl.color}">Lv${lvlNum}</div>
+    <div class="level-info">
+      <div class="level-title">
+        <span class="rank">${lvl.name}</span>
+        <span style="color:var(--text2);font-size:11px">${state.xp} XP</span>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" style="width:${pct}%;background:${lvl.color}"></div>
+      </div>
+      <div class="xp-text">${next ? `다음 레벨까지 ${next.min - state.xp} XP` : '최고 레벨 달성!'}</div>
+    </div>
+    <div class="streak-badge">
+      <div class="streak-num">${state.streak}</div>
+      <div class="streak-label">연속</div>
+    </div>
+  `;
+}
+
+function renderDailyGoal() {
+  const count = getTodayCount();
+  const dots = Array.from({ length: DAILY_GOAL }, (_, i) =>
+    `<div class="daily-dot ${i < count ? 'filled' : ''}"></div>`
+  ).join('');
+  document.getElementById('dailyGoal').innerHTML = `
+    <div class="daily-dots">${dots}</div>
+    <div class="daily-text">오늘 <strong>${count}/${DAILY_GOAL}</strong> 완료${count >= DAILY_GOAL ? ' 🎉' : ''}</div>
+  `;
+}
+
+function renderTabs() {
+  if (currentView === 'achievements') {
+    document.getElementById('tabs').innerHTML = '';
+    return;
+  }
+  const tabsEl = document.getElementById('tabs');
+  const counts = { all: DATA.length };
+  Object.keys(CATS).forEach(k => counts[k] = DATA.filter(d => d.cat === k).length);
+
+  let html = `<button class="tab ${currentTab === 'all' ? 'active' : ''}" onclick="setTab('all')">전체 <span class="count">${counts.all}</span></button>`;
+  Object.entries(CATS).forEach(([key, cat]) => {
+    html += `<button class="tab ${currentTab === key ? 'active' : ''}" onclick="setTab('${key}')" style="${currentTab === key ? '' : `border-color:${cat.color}30; color:${cat.color}`}">${cat.icon} ${cat.name} <span class="count">${counts[key]}</span></button>`;
+  });
+  tabsEl.innerHTML = html;
+}
+
+function renderAchievements() {
+  const contentEl = document.getElementById('content');
+  const unlocked = state.achievements.length;
+  const total = ACHIEVEMENTS.length;
+
+  let html = `<div style="text-align:center;padding:20px 0 10px">
+    <div style="font-size:48px;margin-bottom:8px">🏆</div>
+    <div style="font-size:20px;font-weight:700">${unlocked}/${total} 업적</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:4px">업적 달성으로 +30 XP를 받으세요</div>
+  </div>`;
+
+  html += `<div class="achievements-grid">`;
+  ACHIEVEMENTS.forEach(a => {
+    const u = state.achievements.includes(a.id);
+    html += `<div class="achievement ${u ? 'unlocked' : 'locked'}" title="${a.desc}">
+      <div class="achievement-icon">${u ? a.icon : '🔒'}</div>
+      <div class="achievement-name">${a.name}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Stats summary
+  const catStats = Object.entries(CATS).map(([key, cat]) => {
+    const total = DATA.filter(d => d.cat === key).length;
+    const read = DATA.filter((d, i) => d.cat === key && state.readItems.includes(i)).length;
+    const pct = Math.round((read / total) * 100);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <span>${cat.icon} ${cat.name}</span>
+      <span style="font-size:13px"><strong style="color:${cat.color}">${read}/${total}</strong> <span style="color:var(--text2)">(${pct}%)</span></span>
+    </div>`;
+  }).join('');
+
+  html += `<div style="margin:16px;padding:16px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">
+    <div style="font-weight:700;margin-bottom:8px">카테고리별 진행률</div>
+    ${catStats}
+  </div>`;
+
+  contentEl.innerHTML = html;
+}
+
+function renderContent() {
+  if (currentView === 'achievements') {
+    renderAchievements();
+    return;
+  }
+
+  const contentEl = document.getElementById('content');
+  const items = getFilteredData();
+
+  if (items.length === 0) {
+    const msg = currentView === 'bookmarks'
+      ? { icon: '⭐', title: '북마크가 없습니다', sub: '카드의 ⭐ 버튼을 눌러 북마크하세요' }
+      : { icon: '🔍', title: '검색 결과가 없습니다', sub: '다른 키워드로 검색해보세요' };
+    contentEl.innerHTML = `<div class="empty"><div class="empty-icon">${msg.icon}</div><h3>${msg.title}</h3><p>${msg.sub}</p></div>`;
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  items.forEach(item => {
+    if (!grouped[item.cat]) grouped[item.cat] = [];
+    grouped[item.cat].push(item);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, catItems]) => {
+    const c = CATS[cat];
+    html += `<div class="category-section">`;
+    if (currentTab === 'all' && currentView !== 'random') {
+      html += `<div class="category-header">
+        <div class="category-icon" style="background:${c.bg};color:${c.color}">${c.icon}</div>
+        <h2 style="color:${c.color}">${c.name}</h2>
+        <span class="cat-count">${catItems.length}개</span>
+      </div>`;
+    }
+
+    catItems.forEach(item => {
+      const idx = item._i;
+      const isBookmarked = state.bookmarks.includes(idx);
+      const isRead = state.readItems.includes(idx);
+      const isOpen = openCards.has(idx);
+
+      html += `<div class="card ${isBookmarked ? 'bookmarked' : ''} ${isRead ? 'read' : ''} ${isOpen ? 'open' : ''}" id="card-${idx}">
+        <div class="card-header" onclick="toggleCard(${idx})">
+          <svg class="read-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+          <span class="card-title">${highlight(item.title, searchQuery)}</span>
+          <div class="card-tags">
+            ${item.tags ? item.tags.map(t => {
+              const tc = CATS[item.cat];
+              return `<span class="tag" style="background:${tc.bg};color:${tc.color}">${t}</span>`;
+            }).join('') : ''}
+            <button class="bookmark-btn" onclick="event.stopPropagation();toggleBookmark(${idx})">${isBookmarked ? '⭐' : '☆'}</button>
+          </div>
+          <svg class="card-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="card-content">
+            <div class="def-block">
+              <div class="def-label basic">📘 정의</div>
+              <div class="def-text">${highlight(item.basic, searchQuery)}</div>
+            </div>
+            <div class="def-block">
+              <div class="def-label easy">💡 쉽게 풀면</div>
+              <div class="def-text">${highlight(item.easy, searchQuery)}</div>
+            </div>
+            ${item.code ? `<div class="def-block">
+              <div class="def-label example">💻 코드 예시</div>
+              <div class="code-block"><pre>${item.code}</pre></div>
+            </div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  contentEl.innerHTML = html;
+  updateStats();
+}
+
+function updateStats() {
+  const total = DATA.length;
+  const read = state.readItems.length;
+  document.getElementById('stats').textContent = `${read}/${total}`;
+  document.getElementById('progress').style.width = `${(read / total) * 100}%`;
+}
+
+// ============================================================
+// INTERACTIONS
+// ============================================================
+function toggleCard(idx) {
+  if (openCards.has(idx)) {
+    openCards.delete(idx);
+    const card = document.getElementById(`card-${idx}`);
+    if (card) card.classList.remove('open');
+  } else {
+    openCards.add(idx);
+    const card = document.getElementById(`card-${idx}`);
+    if (card) card.classList.add('open');
+
+    // Mark as read + earn XP
+    if (!state.readItems.includes(idx)) {
+      state.readItems.push(idx);
+      const today = new Date().toISOString().slice(0, 10);
+
+      // Update streak
+      if (state.lastDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        state.streak = (state.lastDate === yesterday) ? state.streak + 1 : 1;
+        state.lastDate = today;
+      }
+
+      state.todayReads.push(idx);
+      saveState(state);
+
+      addXP(10, DATA[idx].title);
+
+      // Update card appearance without full re-render
+      if (card) {
+        card.classList.add('read');
+      }
+
+      renderLevelBar();
+      renderDailyGoal();
+      updateStats();
+      checkAchievements();
+
+      // Daily goal completed toast
+      if (getTodayCount() === DAILY_GOAL) {
+        setTimeout(() => showToast('🎯', '일일 목표 달성!', `오늘 ${DAILY_GOAL}개 읽기 완료`, 20), 800);
+        addXP(20, '일일 목표');
+      }
+    }
+  }
+}
+
+function toggleBookmark(idx) {
+  const i = state.bookmarks.indexOf(idx);
+  if (i === -1) {
+    state.bookmarks.push(idx);
+  } else {
+    state.bookmarks.splice(i, 1);
+  }
+  saveState(state);
+
+  // Update card appearance without full re-render
+  const card = document.getElementById(`card-${idx}`);
+  if (card) {
+    card.classList.toggle('bookmarked', state.bookmarks.includes(idx));
+    const btn = card.querySelector('.bookmark-btn');
+    if (btn) btn.textContent = state.bookmarks.includes(idx) ? '⭐' : '☆';
+  }
+
+  // If in bookmarks view and removed, need full re-render
+  if (currentView === 'bookmarks' && i !== -1) {
+    renderContent();
+  }
+
+  checkAchievements();
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  renderTabs();
+  renderContent();
+}
+
+function setView(view) {
+  currentView = view;
+  if (view === 'random') {
+    state.randomUses++;
+    saveState(state);
+    checkAchievements();
+  }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  renderTabs();
+  renderContent();
+}
+
+// Search
+document.getElementById('search').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim();
+  renderContent();
+});
+
+// Scroll to top button
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+});
+
+// Toast dismiss on tap
+document.getElementById('toast').addEventListener('click', () => {
+  document.getElementById('toast').classList.remove('show');
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderLevelBar();
+renderDailyGoal();
+renderTabs();
+renderContent();
+checkAchievements();
+</script>
+</body>
+</html>
