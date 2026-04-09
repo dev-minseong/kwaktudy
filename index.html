@@ -803,17 +803,13 @@ mark {
       <h1><span>Dev</span> Notes</h1>
       <span class="stats" id="stats"></span>
     </div>
-    <div class="search-wrap">
+    <div class="search-wrap" id="searchWrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" class="search" id="search" placeholder="개념 검색..." autocomplete="off">
     </div>
   </div>
 
-  <div class="level-bar" id="levelBar"></div>
-
   <div class="tabs" id="tabs"></div>
-
-  <div class="daily-goal" id="dailyGoal"></div>
 
   <div class="progress-wrap">
     <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
@@ -1688,6 +1684,8 @@ function loadState() {
     quizCount: parseInt(localStorage.getItem('dn-quiz-count') || '0'),
     quizPerfect: parseInt(localStorage.getItem('dn-quiz-perfect') || '0'),
     quizBest: JSON.parse(localStorage.getItem('dn-quiz-best') || '{}'),
+    attendance: JSON.parse(localStorage.getItem('dn-attendance') || '[]'),
+    todayQuizDone: localStorage.getItem('dn-today-quiz') === new Date().toISOString().slice(0,10),
   };
 }
 
@@ -1703,6 +1701,7 @@ function saveState(state) {
   localStorage.setItem('dn-quiz-count', state.quizCount.toString());
   localStorage.setItem('dn-quiz-perfect', state.quizPerfect.toString());
   localStorage.setItem('dn-quiz-best', JSON.stringify(state.quizBest));
+  localStorage.setItem('dn-attendance', JSON.stringify(state.attendance));
 }
 
 let state = loadState();
@@ -1839,42 +1838,9 @@ function highlight(text, query) {
   return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
 }
 
-function renderLevelBar() {
-  const lvl = getLevel();
-  const next = getNextLevel();
-  const xpInLevel = state.xp - lvl.min;
-  const xpNeeded = next ? (next.min - lvl.min) : 1;
-  const pct = next ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
-  const lvlNum = getLevelIdx() + 1;
-
-  document.getElementById('levelBar').innerHTML = `
-    <div class="level-badge" style="background:${lvl.color}">Lv${lvlNum}</div>
-    <div class="level-info">
-      <div class="level-title">
-        <span class="rank">${lvl.name}</span>
-        <span style="color:var(--text2);font-size:11px">${state.xp} XP</span>
-      </div>
-      <div class="xp-bar">
-        <div class="xp-fill" style="width:${pct}%;background:${lvl.color}"></div>
-      </div>
-      <div class="xp-text">${next ? `다음 레벨까지 ${next.min - state.xp} XP` : '최고 레벨 달성!'}</div>
-    </div>
-    <div class="streak-badge">
-      <div class="streak-num">${state.streak}</div>
-      <div class="streak-label">연속</div>
-    </div>
-  `;
-}
-
-function renderDailyGoal() {
-  const count = getTodayCount();
-  const dots = Array.from({ length: DAILY_GOAL }, (_, i) =>
-    `<div class="daily-dot ${i < count ? 'filled' : ''}"></div>`
-  ).join('');
-  document.getElementById('dailyGoal').innerHTML = `
-    <div class="daily-dots">${dots}</div>
-    <div class="daily-text">오늘 <strong>${count}/${DAILY_GOAL}</strong> 완료${count >= DAILY_GOAL ? ' 🎉' : ''}</div>
-  `;
+function updateSearchVisibility() {
+  const el = document.getElementById('searchWrap');
+  if (el) el.style.display = (currentView === 'all') ? '' : 'none';
 }
 
 function renderTabs() {
@@ -2055,21 +2021,12 @@ function toggleCard(idx) {
 
       addXP(10, DATA[idx].title);
 
-      // Update card appearance without full re-render
       if (card) {
         card.classList.add('read');
       }
 
-      renderLevelBar();
-      renderDailyGoal();
       updateStats();
       checkAchievements();
-
-      // Daily goal completed toast
-      if (getTodayCount() === DAILY_GOAL) {
-        setTimeout(() => showToast('🎯', '일일 목표 달성!', `오늘 ${DAILY_GOAL}개 읽기 완료`, 20), 800);
-        addXP(20, '일일 목표');
-      }
     }
   }
 }
@@ -2115,6 +2072,7 @@ function setView(view) {
   document.querySelectorAll('.nav-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.view === view);
   });
+  updateSearchVisibility();
   renderTabs();
   renderContent();
 }
@@ -2146,7 +2104,7 @@ function getQuizzesByCat(cat) {
 }
 
 function startQuiz(cat, count) {
-  const pool = getQuizzesByCat(cat);
+  const pool = (cat === 'daily') ? [...QUIZZES] : getQuizzesByCat(cat);
   const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, count);
   // Shuffle options for each question
   shuffled.forEach(q => {
@@ -2159,6 +2117,85 @@ function startQuiz(cat, count) {
   renderQuiz();
 }
 
+function getAttendanceStreak() {
+  const att = [...state.attendance].sort().reverse();
+  if (att.length === 0) return 0;
+  let streak = 0;
+  let check = new Date();
+  // If today is done, start from today; otherwise start from yesterday
+  const today = check.toISOString().slice(0,10);
+  if (att[0] !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    if (att[0] !== yesterday) return 0;
+  }
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0,10);
+    if (att.includes(d)) streak++;
+    else if (i > 0) break; // allow today to be missing
+    else if (i === 0 && !att.includes(d)) continue;
+  }
+  return streak;
+}
+
+function renderAttendanceCalendar() {
+  const today = new Date();
+  const days = [];
+  // Show last 28 days (4 weeks)
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const dateStr = d.toISOString().slice(0,10);
+    const done = state.attendance.includes(dateStr);
+    const isToday = i === 0;
+    days.push({ date: d, dateStr, done, isToday });
+  }
+
+  const streak = getAttendanceStreak();
+  const todayDone = state.todayQuizDone;
+
+  let html = `<div style="margin:0 16px 16px;padding:14px;background:var(--surface);border-radius:12px;border:1px solid var(--border)">`;
+
+  // Header
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div>
+      <div style="font-size:14px;font-weight:700">출석 현황</div>
+      <div style="font-size:11px;color:var(--text2)">매일 5문제 풀면 출석!</div>
+    </div>
+    <div style="text-align:center;padding:4px 12px;background:var(--orange-dim);border-radius:8px">
+      <div style="font-size:20px;font-weight:800;color:var(--orange);line-height:1">${streak}</div>
+      <div style="font-size:9px;color:var(--orange);font-weight:600">연속</div>
+    </div>
+  </div>`;
+
+  // Today status
+  if (todayDone) {
+    html += `<div style="text-align:center;padding:8px;margin-bottom:12px;background:var(--green-dim);border-radius:8px;font-size:13px;color:var(--green);font-weight:600">✅ 오늘 출석 완료!</div>`;
+  } else {
+    html += `<div style="text-align:center;padding:8px;margin-bottom:12px;background:var(--accent-dim);border-radius:8px;font-size:13px;color:var(--accent);font-weight:600">오늘 아직 미출석 — 5문제 풀어보세요</div>`;
+  }
+
+  // Calendar grid
+  html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">`;
+  ['월','화','수','목','금','토','일'].forEach(d => {
+    html += `<div style="font-size:10px;color:var(--text2);padding:2px">${d}</div>`;
+  });
+
+  // Pad first week
+  const firstDay = (days[0].date.getDay() + 6) % 7; // Monday = 0
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div></div>`;
+  }
+
+  days.forEach(d => {
+    const bg = d.done ? 'var(--green)' : (d.isToday ? 'var(--accent)' : 'var(--surface2)');
+    const opacity = d.done ? '1' : (d.isToday ? '0.4' : '0.2');
+    const dd = d.date.getDate();
+    html += `<div style="width:100%;aspect-ratio:1;border-radius:6px;background:${bg};opacity:${opacity};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${dd}</div>`;
+  });
+
+  html += `</div></div>`;
+  return html;
+}
+
 function renderQuizModeSelect() {
   const contentEl = document.getElementById('content');
   const total = QUIZZES.length;
@@ -2168,6 +2205,9 @@ function renderQuizModeSelect() {
     <div style="font-size:20px;font-weight:700">퀴즈 모드</div>
     <div style="font-size:13px;color:var(--text2);margin-top:4px">총 ${total}문제 | 정답 +15 XP</div>
   </div>`;
+
+  // Attendance calendar
+  html += renderAttendanceCalendar();
 
   // Best scores
   const hasBest = Object.keys(state.quizBest).length > 0;
@@ -2185,16 +2225,17 @@ function renderQuizModeSelect() {
 
   html += `<div class="quiz-mode-select">`;
 
+  // Daily quiz (attendance)
+  const todayDone = state.todayQuizDone;
+  html += `<div class="quiz-mode-btn" onclick="startQuiz('daily', 5)" style="${todayDone ? 'opacity:0.5' : 'border-color:var(--green)'}">
+    <div class="quiz-mode-title">📅 오늘의 출석 퀴즈 (5문제) ${todayDone ? '✅' : ''}</div>
+    <div class="quiz-mode-desc">${todayDone ? '오늘 출석 완료! 다시 풀 수 있어요' : '5문제 풀면 오늘 출석 도장!'}</div>
+  </div>`;
+
   // Full quiz
   html += `<div class="quiz-mode-btn" onclick="startQuiz('all', 10)">
     <div class="quiz-mode-title">🎯 종합 퀴즈 (10문제)</div>
     <div class="quiz-mode-desc">전체 카테고리에서 랜덤 10문제</div>
-  </div>`;
-
-  // Quick quiz
-  html += `<div class="quiz-mode-btn" onclick="startQuiz('all', 5)">
-    <div class="quiz-mode-title">⚡ 빠른 퀴즈 (5문제)</div>
-    <div class="quiz-mode-desc">짧게 5문제만</div>
   </div>`;
 
   // By category
@@ -2278,7 +2319,6 @@ function answerQuiz(selected) {
     </div>`;
 
   document.getElementById('quizNext').style.display = 'block';
-  renderLevelBar();
 }
 
 function nextQuiz() {
@@ -2302,13 +2342,34 @@ function renderQuizResult() {
 
   // Save best score
   const key = quizState.mode;
-  if (!state.quizBest[key] || score > state.quizBest[key].score) {
-    state.quizBest[key] = { score, total };
+  if (key !== 'daily') {
+    if (!state.quizBest[key] || score > state.quizBest[key].score) {
+      state.quizBest[key] = { score, total };
+    }
   }
   state.quizCount++;
   if (pct === 100) state.quizPerfect++;
+
+  // Attendance — daily quiz marks today
+  const today = new Date().toISOString().slice(0,10);
+  let attendanceMarked = false;
+  if (key === 'daily' && !state.attendance.includes(today)) {
+    state.attendance.push(today);
+    state.todayQuizDone = true;
+    localStorage.setItem('dn-today-quiz', today);
+    attendanceMarked = true;
+    addXP(25, '출석 보너스');
+
+    const streak = getAttendanceStreak();
+    if (streak > state.streak) state.streak = streak;
+  }
+
   saveState(state);
   checkAchievements();
+
+  if (attendanceMarked) {
+    setTimeout(() => showToast('📅', '출석 완료!', `${getAttendanceStreak()}일 연속 출석`, 25), 500);
+  }
 
   let html = `<div class="quiz-result">
     <div class="quiz-result-icon">${icon}</div>
@@ -2338,8 +2399,7 @@ function renderQuizResult() {
 // ============================================================
 // INIT
 // ============================================================
-renderLevelBar();
-renderDailyGoal();
+updateSearchVisibility();
 renderTabs();
 renderContent();
 checkAchievements();
