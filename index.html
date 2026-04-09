@@ -1374,6 +1374,20 @@ const DATA = [
   easy: "택배 송장 읽기/쓰기예요. URL 뒤에 붙은 <code>?page=2&sort=latest</code> 같은 정보를 쉽게 읽고 수정할 수 있습니다. 직접 문자열을 자르고 붙이지 않아도 돼요.",
   code: `// URL에서 파라미터 읽기\nconst params = new URLSearchParams(window.location.search);\nparams.get('page');     // '2'\nparams.has('sort');     // true\n\n// 파라미터 조작\nparams.set('page', '3');\nparams.append('filter', 'active');\nparams.delete('sort');\n\n// URL 업데이트\nconst newUrl = \`\${location.pathname}?\${params}\`;\nhistory.pushState(null, '', newUrl);`
 },
+{
+  cat: "browser", title: "WebRTC",
+  tags: ["실시간", "P2P"],
+  basic: "브라우저 간 플러그인 없이 실시간 음성, 영상, 데이터를 주고받는 API입니다. P2P(Peer-to-Peer) 방식으로 서버를 거치지 않고 직접 통신합니다. <code>getUserMedia()</code>로 카메라/마이크 접근, <code>RTCPeerConnection</code>으로 연결을 맺어요. Signaling 서버가 초기 연결 중개를 합니다.",
+  easy: "워키토키예요. 중간 기지국(서버) 없이 두 사람이 직접 대화합니다. 처음에 '나 여기 있어!'라고 서로 위치를 알려주는 과정(Signaling)만 서버가 도와주고, 그 다음부터는 직접 통화해요. 줌, 구글 미트가 이걸로 만들어졌어요.",
+  code: `// 카메라 & 마이크 접근\nconst stream = await navigator.mediaDevices.getUserMedia({\n  video: true,\n  audio: true\n});\nvideo.srcObject = stream;\n\n// P2P 연결 생성\nconst pc = new RTCPeerConnection({\n  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]\n});\n\n// 스트림 추가\nstream.getTracks().forEach(track => {\n  pc.addTrack(track, stream);\n});\n\n// Offer 생성 & 전송\nconst offer = await pc.createOffer();\nawait pc.setLocalDescription(offer);\n// → signaling 서버로 offer 전송`
+},
+{
+  cat: "browser", title: "WebGL",
+  tags: ["그래픽", "3D"],
+  basic: "브라우저에서 GPU를 활용한 2D/3D 그래픽을 렌더링하는 저수준 API입니다. OpenGL ES 기반이며, <code>&lt;canvas&gt;</code> 위에 하드웨어 가속 그래픽을 그립니다. 직접 쓰기보단 Three.js, Babylon.js 같은 라이브러리를 통해 사용하는 경우가 많아요.",
+  easy: "게임용 그래픽카드를 웹에서 쓰는 거예요. Canvas API가 CPU로 그리는 스케치북이라면, WebGL은 GPU를 활용하는 고성능 3D 프린터. 브라우저에서 3D 게임, 지도, 데이터 시각화를 만들 수 있어요.",
+  code: `// Three.js로 WebGL 사용 (직접 WebGL보다 훨씬 편함)\nimport * as THREE from 'three';\n\nconst scene = new THREE.Scene();\nconst camera = new THREE.PerspectiveCamera(75, w/h, 0.1, 1000);\nconst renderer = new THREE.WebGLRenderer();\nrenderer.setSize(w, h);\ndocument.body.appendChild(renderer.domElement);\n\n// 큐브 생성\nconst geometry = new THREE.BoxGeometry();\nconst material = new THREE.MeshBasicMaterial({ color: 0x3A89FF });\nconst cube = new THREE.Mesh(geometry, material);\nscene.add(cube);\n\n// 애니메이션 루프\nfunction animate() {\n  requestAnimationFrame(animate);\n  cube.rotation.x += 0.01;\n  renderer.render(scene, camera);\n}\nanimate();`
+},
 ];
 
 // ============================================================
