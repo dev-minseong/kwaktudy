@@ -313,11 +313,12 @@ body {
   cursor: pointer;
   padding: 4px;
   font-size: 16px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  transition: filter 0.2s;
+  filter: grayscale(1) brightness(2);
+  line-height: 1;
 }
 
-.card.bookmarked .bookmark-btn { opacity: 1; }
+.card.bookmarked .bookmark-btn { filter: none; }
 
 /* Bottom Nav */
 .bottom-nav {
@@ -1725,7 +1726,7 @@ function renderContent() {
               const tc = CATS[item.cat];
               return `<span class="tag" style="background:${tc.bg};color:${tc.color}">${t}</span>`;
             }).join('') : ''}
-            <button class="bookmark-btn" onclick="event.stopPropagation();toggleBookmark(${idx})">${isBookmarked ? '⭐' : '☆'}</button>
+            <button class="bookmark-btn" onclick="event.stopPropagation();toggleBookmark(${idx})">⭐</button>
           </div>
           <svg class="card-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
         </div>
@@ -1824,7 +1825,7 @@ function toggleBookmark(idx) {
   if (card) {
     card.classList.toggle('bookmarked', state.bookmarks.includes(idx));
     const btn = card.querySelector('.bookmark-btn');
-    if (btn) btn.textContent = state.bookmarks.includes(idx) ? '⭐' : '☆';
+    // 아이콘은 항상 ⭐, CSS filter로 색상 전환
   }
 
   // If in bookmarks view and removed, need full re-render
