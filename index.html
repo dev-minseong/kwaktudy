@@ -1263,6 +1263,108 @@ const DATA = [
   basic: "Model(데이터/로직) + View(화면) + Controller(중재자). 관심사를 분리하는 아키텍처 패턴입니다. NestJS는 MVC 변형(Module-Controller-Service), React는 View 레이어만 담당해요.",
   easy: "식당이에요. Model = 주방(요리, 재료 관리). View = 홀(손님이 보는 화면). Controller = 웨이터(주문 받고, 주방에 전달하고, 음식 가져다주기). 각자 역할이 분명해요.",
 },
+
+// ──────────────────────────────────────────
+// 브라우저 API
+// ──────────────────────────────────────────
+{
+  cat: "browser", title: "Fetch API",
+  tags: ["HTTP", "비동기"],
+  basic: "브라우저에서 HTTP 요청을 보내는 내장 API입니다. <code>XMLHttpRequest</code>를 대체하며, Promise 기반으로 동작합니다. <code>fetch(url, options)</code>로 호출하고, Response 객체를 반환합니다. JSON, 텍스트, Blob 등 다양한 형식을 처리해요.",
+  easy: "편의점 배달 앱이에요. 주소(URL)와 주문 내용(options)을 보내면, 배달(Promise)이 시작되고, 물건(Response)이 도착하면 포장을 뜯어서(json(), text()) 내용물을 확인합니다.",
+  code: `// GET 요청\nconst res = await fetch('/api/users');\nconst users = await res.json();\n\n// POST 요청\nconst res = await fetch('/api/users', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ name: '홍길동' })\n});\n\n// 에러 처리\nif (!res.ok) throw new Error(\`HTTP \${res.status}\`);`
+},
+{
+  cat: "browser", title: "localStorage / sessionStorage",
+  tags: ["저장소"],
+  basic: "브라우저에 키-값 데이터를 저장하는 Web Storage API입니다. <code>localStorage</code>는 브라우저를 닫아도 유지, <code>sessionStorage</code>는 탭을 닫으면 삭제됩니다. 문자열만 저장 가능하므로 <code>JSON.stringify/parse</code>를 함께 씁니다. 최대 약 5MB.",
+  easy: "localStorage는 책상 서랍(브라우저 닫아도 남아있음), sessionStorage는 포스트잇(탭 닫으면 사라짐). 둘 다 간단한 메모를 저장하기 좋지만, 기밀문서(민감 정보)는 넣으면 안 돼요.",
+  code: `// 저장\nlocalStorage.setItem('user', JSON.stringify({ name: '홍길동' }));\n\n// 조회\nconst user = JSON.parse(localStorage.getItem('user'));\n\n// 삭제\nlocalStorage.removeItem('user');\n\n// 전체 삭제\nlocalStorage.clear();\n\n// sessionStorage도 동일한 API\nsessionStorage.setItem('temp', 'data');`
+},
+{
+  cat: "browser", title: "Geolocation API",
+  tags: ["위치"],
+  basic: "사용자의 현재 위치(위도, 경도)를 가져오는 API입니다. <code>navigator.geolocation.getCurrentPosition()</code>으로 한 번, <code>watchPosition()</code>으로 실시간 추적합니다. HTTPS에서만 동작하며, 사용자 권한 허용이 필요합니다.",
+  easy: "스마트폰 GPS예요. '위치 정보를 허용하시겠습니까?' 팝업이 뜨고, 허용하면 현재 좌표를 알려줍니다. 지도 앱, 배달 앱, 날씨 앱 같은 곳에서 쓰이죠.",
+  code: `// 현재 위치 한 번 가져오기\nnavigator.geolocation.getCurrentPosition(\n  (pos) => {\n    console.log('위도:', pos.coords.latitude);\n    console.log('경도:', pos.coords.longitude);\n  },\n  (err) => console.error('위치 오류:', err.message),\n  { enableHighAccuracy: true }\n);\n\n// 실시간 위치 추적\nconst watchId = navigator.geolocation.watchPosition(callback);\nnavigator.geolocation.clearWatch(watchId); // 추적 중지`
+},
+{
+  cat: "browser", title: "Notification API",
+  tags: ["알림"],
+  basic: "운영체제 수준의 알림을 표시하는 API입니다. <code>Notification.requestPermission()</code>으로 권한을 요청하고, <code>new Notification(title, options)</code>으로 알림을 생성합니다. Service Worker와 결합하면 푸시 알림도 가능해요.",
+  easy: "앱 푸시 알림이에요. 웹사이트가 '알림 보내도 될까요?' 물어보고, 허락하면 브라우저 밖에서도 알림이 뜹니다. 카톡 알림처럼요.",
+  code: `// 권한 요청\nconst permission = await Notification.requestPermission();\n\n// 알림 보내기\nif (permission === 'granted') {\n  new Notification('새 메시지', {\n    body: '홍길동님이 메시지를 보냈습니다.',\n    icon: '/icon.png',\n    tag: 'message' // 같은 tag면 덮어쓰기\n  });\n}`
+},
+{
+  cat: "browser", title: "Intersection Observer",
+  tags: ["성능", "UI"],
+  basic: "요소가 뷰포트(화면)에 보이는지 감지하는 API입니다. 스크롤 이벤트 대신 사용하면 성능이 훨씬 좋습니다. 무한 스크롤, 이미지 지연 로딩(lazy loading), 스크롤 애니메이션에 필수예요.",
+  easy: "CCTV 센서예요. 특정 구역(뷰포트)에 물체(요소)가 들어오면 '감지!'라고 알려줍니다. 매 순간 확인하지 않고, 들어올 때만 알림이 오니까 효율적이에요.",
+  code: `const observer = new IntersectionObserver((entries) => {\n  entries.forEach(entry => {\n    if (entry.isIntersecting) {\n      // 요소가 화면에 보임!\n      entry.target.classList.add('visible');\n      observer.unobserve(entry.target); // 한 번만 감지\n    }\n  });\n}, { threshold: 0.1 }); // 10% 보이면 트리거\n\ndocument.querySelectorAll('.lazy').forEach(el => {\n  observer.observe(el);\n});`
+},
+{
+  cat: "browser", title: "Web Workers",
+  tags: ["성능", "멀티스레드"],
+  basic: "메인 스레드와 별도로 백그라운드에서 JavaScript를 실행하는 API입니다. 무거운 연산(이미지 처리, 데이터 파싱 등)을 Worker에 맡기면 UI가 멈추지 않습니다. <code>postMessage</code>로 데이터를 주고받아요.",
+  easy: "주방 보조 요리사예요. 메인 셰프(메인 스레드)가 혼자 다 하면 주문이 밀리니까, 보조(Worker)에게 감자 까는 일(무거운 연산)을 시킵니다. 보조가 다 하면 '다 했어요!' 하고 결과를 돌려줘요.",
+  code: `// main.js\nconst worker = new Worker('worker.js');\nworker.postMessage({ data: hugeArray });\nworker.onmessage = (e) => {\n  console.log('결과:', e.data);\n};\n\n// worker.js\nself.onmessage = (e) => {\n  const result = heavyCalculation(e.data);\n  self.postMessage(result);\n};`
+},
+{
+  cat: "browser", title: "History API",
+  tags: ["라우팅"],
+  basic: "브라우저 히스토리(방문 기록)를 JavaScript로 제어하는 API입니다. <code>pushState()</code>로 URL을 변경하고(새로고침 없이), <code>popstate</code> 이벤트로 뒤로가기를 감지합니다. SPA 라우팅(React Router 등)의 핵심 기반이에요.",
+  easy: "책갈피예요. 책(웹앱)을 넘길 때마다 책갈피(URL)를 꽂아두고, 뒤로 가고 싶으면 이전 책갈피로 돌아갑니다. 페이지를 새로 펼치지(새로고침) 않아도 돼요.",
+  code: `// URL 변경 (새로고침 없이)\nhistory.pushState({ page: 1 }, '', '/dashboard');\n\n// URL 교체 (히스토리에 안 남음)\nhistory.replaceState(null, '', '/login');\n\n// 뒤로가기/앞으로가기 감지\nwindow.addEventListener('popstate', (e) => {\n  console.log('이동:', e.state);\n  renderPage(e.state);\n});\n\nhistory.back();    // 뒤로\nhistory.forward(); // 앞으로`
+},
+{
+  cat: "browser", title: "Canvas API",
+  tags: ["그래픽"],
+  basic: "<code>&lt;canvas&gt;</code> 요소에 2D 그래픽을 그리는 API입니다. 도형, 텍스트, 이미지, 애니메이션을 픽셀 단위로 제어합니다. 차트 라이브러리(Chart.js), 게임, 이미지 편집기의 기반 기술이에요.",
+  easy: "디지털 스케치북이에요. 빈 캔버스에 연필(stroke), 물감(fill)으로 원, 사각형, 선을 자유롭게 그립니다. 그림판 프로그램을 웹에서 만들 수 있어요.",
+  code: `const canvas = document.getElementById('myCanvas');\nconst ctx = canvas.getContext('2d');\n\n// 사각형\nctx.fillStyle = '#3A89FF';\nctx.fillRect(10, 10, 150, 100);\n\n// 원\nctx.beginPath();\nctx.arc(200, 60, 50, 0, Math.PI * 2);\nctx.fillStyle = '#34d399';\nctx.fill();\n\n// 텍스트\nctx.font = '20px sans-serif';\nctx.fillText('Hello Canvas!', 10, 180);`
+},
+{
+  cat: "browser", title: "Clipboard API",
+  tags: ["UX"],
+  basic: "클립보드에 텍스트나 데이터를 읽고 쓰는 API입니다. <code>navigator.clipboard.writeText()</code>로 복사, <code>readText()</code>로 붙여넣기. HTTPS와 사용자 권한이 필요합니다. '복사됨!' 토스트와 함께 자주 쓰여요.",
+  easy: "Ctrl+C / Ctrl+V를 코드로 하는 거예요. '공유 링크 복사' 버튼 누르면 클립보드에 자동으로 복사되고, '복사되었습니다!' 메시지가 뜨잖아요. 그게 이 API예요.",
+  code: `// 텍스트 복사\nasync function copyToClipboard(text) {\n  try {\n    await navigator.clipboard.writeText(text);\n    alert('복사되었습니다!');\n  } catch (err) {\n    console.error('복사 실패:', err);\n  }\n}\n\n// 텍스트 읽기 (붙여넣기)\nconst text = await navigator.clipboard.readText();`
+},
+{
+  cat: "browser", title: "MutationObserver",
+  tags: ["DOM"],
+  basic: "DOM 변경을 감지하는 API입니다. 요소의 속성, 자식 노드, 텍스트 변경을 관찰합니다. 서드파티 라이브러리가 DOM을 변경하는 것을 감지하거나, 동적 콘텐츠 로딩을 추적할 때 유용해요.",
+  easy: "감시 카메라예요. 특정 구역(DOM 요소)을 지켜보다가, 뭔가 바뀌면(자식 추가, 속성 변경) 즉시 알려줍니다. '누가 이 문 열었어?' 같은 걸 자동으로 감지해요.",
+  code: `const observer = new MutationObserver((mutations) => {\n  mutations.forEach(mutation => {\n    if (mutation.type === 'childList') {\n      console.log('자식 노드 변경됨!');\n    }\n    if (mutation.type === 'attributes') {\n      console.log('속성 변경:', mutation.attributeName);\n    }\n  });\n});\n\nobserver.observe(document.getElementById('app'), {\n  childList: true,   // 자식 노드 변경\n  attributes: true,  // 속성 변경\n  subtree: true      // 하위 전체 감시\n});`
+},
+{
+  cat: "browser", title: "ResizeObserver",
+  tags: ["UI", "반응형"],
+  basic: "요소의 크기 변경을 감지하는 API입니다. <code>window.resize</code> 이벤트와 달리, 개별 요소의 크기 변화를 효율적으로 추적합니다. 반응형 컴포넌트, 차트 리사이즈, 레이아웃 재계산에 사용해요.",
+  easy: "스마트 옷장이에요. 방 크기가 바뀌면 '방이 넓어졌어!' 또는 '좁아졌어!'라고 알려줘서, 옷장 크기를 자동으로 조절합니다. 각 가구(요소)마다 따로 감지할 수 있어요.",
+  code: `const observer = new ResizeObserver((entries) => {\n  entries.forEach(entry => {\n    const { width, height } = entry.contentRect;\n    console.log(\`크기 변경: \${width} x \${height}\`);\n    // 차트 크기 재조정 등\n    chart.resize(width, height);\n  });\n});\n\nobserver.observe(document.getElementById('chart-container'));`
+},
+{
+  cat: "browser", title: "Performance API",
+  tags: ["성능", "측정"],
+  basic: "웹 페이지 성능을 정밀하게 측정하는 API입니다. <code>performance.now()</code>로 고정밀 시간 측정, <code>performance.mark()</code>/<code>measure()</code>로 구간 측정. 페이지 로딩 시간, 함수 실행 시간 분석에 사용해요.",
+  easy: "초정밀 스톱워치예요. 일반 시계(Date.now())는 밀리초 단위지만, Performance API는 마이크로초까지 잽니다. '이 코드가 정확히 얼마나 걸리는지' 과학적으로 측정해요.",
+  code: `// 고정밀 시간 측정\nconst start = performance.now();\ndoHeavyWork();\nconst end = performance.now();\nconsole.log(\`실행 시간: \${end - start}ms\`);\n\n// 마크 & 측정\nperformance.mark('fetch-start');\nawait fetch('/api/data');\nperformance.mark('fetch-end');\nperformance.measure('fetch-time', 'fetch-start', 'fetch-end');\n\nconst measures = performance.getEntriesByName('fetch-time');\nconsole.log(measures[0].duration);`
+},
+{
+  cat: "browser", title: "FormData API",
+  tags: ["폼", "HTTP"],
+  basic: "HTML 폼 데이터를 쉽게 수집하고 전송하는 API입니다. 파일 업로드 시 <code>multipart/form-data</code>를 자동 처리합니다. <code>fetch</code>와 함께 쓰면 파일 업로드가 간단해요.",
+  easy: "자동 서류 봉투예요. 양식(form)에 작성한 내용을 자동으로 봉투(FormData)에 담아줍니다. 사진 첨부(파일 업로드)도 봉투에 같이 넣어서 한 번에 보내요.",
+  code: `// 폼에서 데이터 수집\nconst form = document.getElementById('uploadForm');\nconst formData = new FormData(form);\n\n// 수동으로 데이터 추가\nformData.append('file', fileInput.files[0]);\nformData.append('name', '프로필 사진');\n\n// 전송 (Content-Type 자동 설정)\nawait fetch('/api/upload', {\n  method: 'POST',\n  body: formData  // JSON.stringify 불필요!\n});`
+},
+{
+  cat: "browser", title: "URLSearchParams",
+  tags: ["URL"],
+  basic: "URL 쿼리 문자열을 쉽게 다루는 API입니다. <code>?key=value&foo=bar</code> 형태의 파라미터를 파싱하고 조작합니다. 검색 필터, 페이지네이션, URL 상태 관리에 유용해요.",
+  easy: "택배 송장 읽기/쓰기예요. URL 뒤에 붙은 <code>?page=2&sort=latest</code> 같은 정보를 쉽게 읽고 수정할 수 있습니다. 직접 문자열을 자르고 붙이지 않아도 돼요.",
+  code: `// URL에서 파라미터 읽기\nconst params = new URLSearchParams(window.location.search);\nparams.get('page');     // '2'\nparams.has('sort');     // true\n\n// 파라미터 조작\nparams.set('page', '3');\nparams.append('filter', 'active');\nparams.delete('sort');\n\n// URL 업데이트\nconst newUrl = \`\${location.pathname}?\${params}\`;\nhistory.pushState(null, '', newUrl);`
+},
 ];
 
 // ============================================================
@@ -1274,6 +1376,7 @@ const CATS = {
   backend:  { name: '백엔드', icon: '⚙️', color: 'var(--orange)', bg: 'var(--orange-dim)' },
   infra:    { name: '인프라', icon: '☁️', color: 'var(--purple)', bg: 'var(--purple-dim)' },
   cs:       { name: 'CS 기초', icon: '🧠', color: 'var(--pink)', bg: 'var(--pink-dim)' },
+  browser:  { name: '브라우저 API', icon: '🌐', color: 'var(--yellow)', bg: 'var(--yellow-dim)' },
 };
 
 // ============================================================
@@ -1301,6 +1404,7 @@ const ACHIEVEMENTS = [
   { id: 'cat_backend', icon: '⚙️', name: 'BE 마스터', desc: '백엔드 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'backend' || s.readItems.includes(i)) },
   { id: 'cat_infra', icon: '☁️', name: '인프라 마스터', desc: '인프라 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'infra' || s.readItems.includes(i)) },
   { id: 'cat_cs', icon: '🧠', name: 'CS 마스터', desc: 'CS 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'cs' || s.readItems.includes(i)) },
+  { id: 'cat_browser', icon: '🌐', name: 'API 마스터', desc: '브라우저 API 전부 읽기', check: s => DATA.every((d,i) => d.cat !== 'browser' || s.readItems.includes(i)) },
   { id: 'streak_3', icon: '🔥', name: '3일 연속', desc: '3일 연속 학습', check: s => s.streak >= 3 },
   { id: 'streak_7', icon: '💎', name: '7일 연속', desc: '7일 연속 학습', check: s => s.streak >= 7 },
   { id: 'daily_5', icon: '🏃', name: '하루 5개', desc: '하루에 5개 읽기', check: s => s.todayCount >= 5 },

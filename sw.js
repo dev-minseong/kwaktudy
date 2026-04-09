@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dev-notes-v1';
+const CACHE_NAME = 'dev-notes-v2';
 const ASSETS = [
   '/kwaktudy/',
   '/kwaktudy/index.html',
