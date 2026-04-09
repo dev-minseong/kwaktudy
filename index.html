@@ -46,15 +46,21 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* Header */
-.header {
-  position: sticky;
+/* Fixed top area */
+.fixed-top {
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  background: rgba(10,10,10,0.85);
+  background: rgba(10,10,10,0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
+}
+
+/* Header */
+.header {
   padding: 12px 16px;
 }
 
@@ -114,7 +120,7 @@ body {
 .tabs {
   display: flex;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 8px 16px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -166,7 +172,7 @@ body {
   margin-bottom: 12px;
   padding: 8px 0;
   position: sticky;
-  top: 90px;
+  top: 0;
   z-index: 10;
   background: var(--bg);
 }
@@ -618,20 +624,22 @@ mark {
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <h1><span>Dev</span> Notes</h1>
-    <span class="stats" id="stats"></span>
+<div class="fixed-top">
+  <div class="header">
+    <div class="header-top">
+      <h1><span>Dev</span> Notes</h1>
+      <span class="stats" id="stats"></span>
+    </div>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" class="search" id="search" placeholder="개념 검색..." autocomplete="off">
+    </div>
   </div>
-  <div class="search-wrap">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" class="search" id="search" placeholder="개념 검색..." autocomplete="off">
-  </div>
+
+  <div class="tabs" id="tabs"></div>
 </div>
 
 <div class="level-bar" id="levelBar"></div>
-
-<div class="tabs" id="tabs"></div>
 
 <div class="daily-goal" id="dailyGoal"></div>
 
@@ -1880,6 +1888,23 @@ renderDailyGoal();
 renderTabs();
 renderContent();
 checkAchievements();
+
+// Fixed top 높이만큼 body padding 설정
+(function adjustFixedTop() {
+  const fixedTop = document.querySelector('.fixed-top');
+  const h = fixedTop.offsetHeight;
+  document.body.style.paddingTop = h + 'px';
+  document.querySelectorAll('.category-header').forEach(el => {
+    el.style.top = h + 'px';
+  });
+  new ResizeObserver(() => {
+    const nh = fixedTop.offsetHeight;
+    document.body.style.paddingTop = nh + 'px';
+    document.querySelectorAll('.category-header').forEach(el => {
+      el.style.top = nh + 'px';
+    });
+  }).observe(fixedTop);
+})();
 
 // PWA Service Worker
 if ('serviceWorker' in navigator) {
